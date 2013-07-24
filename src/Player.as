@@ -16,7 +16,9 @@ package
 		override public function update():void
 		{
 			if (FlxG.keys.SHIFT)
+			{
 				pressCrouch();
+			}
 			if (!(FlxG.keys.RIGHT && FlxG.keys.LEFT))
 			{
 				if (FlxG.keys.RIGHT)
@@ -31,7 +33,7 @@ package
 				if (FlxG.keys.DOWN)
 					pressDown();
 			}
-			if (FlxG.keys.SPACE)
+			if (FlxG.keys.justPressed("SPACE"))
 				pressJump();
 			if (FlxG.keys.justPressed("Z"))
 				pressSlash();
