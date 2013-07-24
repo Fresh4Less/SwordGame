@@ -10,13 +10,13 @@ package
 	{
 		
 		private var platforms:FlxGroup;
-		private var player1:Fighter;
+		private var player1:Player;
 		
 		override public function create():void
 		{
 			FlxG.bgColor = 0xffffffff;
 			
-			player1 = new Fighter(100, 300);
+			player1 = new Player(100, 300);
 			player1.makeGraphic(32, 48, 0xffdd2222);
 			
 			platforms = new FlxGroup();

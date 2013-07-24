@@ -17,14 +17,20 @@ package
 		{
 			if (FlxG.keys.SHIFT)
 				pressCrouch();
-			if (FlxG.keys.RIGHT)
-				pressRight();
-			if (FlxG.keys.LEFT)
-				pressLeft();
-			if (FlxG.keys.UP)
-				pressUp();
-			if (FlxG.keys.DOWN)
-				pressDown();
+			if (!(FlxG.keys.RIGHT && FlxG.keys.LEFT))
+			{
+				if (FlxG.keys.RIGHT)
+					pressRight();
+				if (FlxG.keys.LEFT)
+					pressLeft();
+			}
+			if (!(FlxG.keys.UP && FlxG.keys.DOWN))
+			{
+				if (FlxG.keys.UP)
+					pressUp();
+				if (FlxG.keys.DOWN)
+					pressDown();
+			}
 			if (FlxG.keys.SPACE)
 				pressJump();
 			if (FlxG.keys.justPressed("Z"))
