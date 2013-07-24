@@ -16,6 +16,33 @@ package
 		protected var jumpPressed:Boolean;
 		protected var slashPressed:Boolean;
 		protected var stabPressed:Boolean;
+
+		//movement states
+		private static const MOVEMENT_IDLE:int = 0;
+		private static const MOVEMENT_RUN:int = 1;
+		private static const MOVEMENT_CROUCH:int = 2;
+		private static const MOVEMENT_JUMP:int = 3;
+		private static const MOVEMENT_HOP:int = 4;
+		private static const MOVEMENT_SLIDE:int = 5;
+
+		//attack states
+		private static const ATTACK_IDLE:int = 0;
+		private static const ATTACK_STAB:int = 1;
+		private static const ATTACK_SLASH:int = 2;
+
+		//process states
+		private static const WINDUP:int = 0;
+		private static const ONGOING:int = 1;
+		private static const RECOVERY:int = 2;
+
+		//state variables
+		private var movementState:int = MOVEMENT_IDLE;
+		private var movementProcess:int = ONGOING;
+		private var movementTarget:int = MOVEMENT_IDLE;
+
+		private var attackState:int = ATTACK_IDLE;
+		private var attackProcess:int = ONGOING;
+		private var attackTarget:int = ATTACK_IDLE;
 		
 		public function Fighter(X:Number, Y:Number)
 		{
