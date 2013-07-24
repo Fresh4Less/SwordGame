@@ -21,7 +21,6 @@ package
 			ongoingTime = l_ongoingTime;
 			recoveryTime = l_recoveryTime;
 		}
-		
 	}
 
 }

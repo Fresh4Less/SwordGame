@@ -56,6 +56,8 @@ package
 		private var sword:FighterSword;
 		private var facingRight:Boolean;
 		
+		public var isOnGround:Boolean = false;
+		
 		public function Fighter(X:Number, Y:Number)
 		{
 			super(X, Y);
@@ -84,12 +86,22 @@ package
 			resetInput();
 			acceleration.x = 0;
 			acceleration.y = 900;
+			drag.x = maxVelocity.x * 4;
 			if (movementState == sword.runState)
 			{
 				if (facingRight)
 					acceleration.x = drag.x;
 				else
 					acceleration.x = -drag.x;
+			}
+			else if (isOnGround && (movementState == sword.jumpState || movementState == sword.jumpForwardState))
+			{
+				velocity.y = -400;
+				drag.x = 0;
+			}
+			else if (!isOnGround && (movementState == sword.jumpState || movementState == sword.jumpForwardState))
+			{
+				drag.x = 0;
 			}
 			super.update();
 		}
@@ -98,61 +110,70 @@ package
 		{
 			//set target state
 			movementTarget = sword.movementIdleState;
-			if (rightPressed)
+			//if in air force a jump state
+			if (!isOnGround && (movementState != sword.jumpState || movementState != sword.jumpForwardState))
 			{
-				if (movementState == sword.movementIdleState || movementState == sword.runState)
+				movementTarget = sword.jumpForwardState;
+				movementStateTimer.stop();
+				movementProcess = ONGOING;
+			}
+			else
+			{
+				if (rightPressed)
 				{
-					if(facingRight)
-						movementTarget = sword.runState;
-					else
-						movementTarget = sword.turnState;
+					if (movementState == sword.movementIdleState || movementState == sword.runState)
+					{
+						if(facingRight)
+							movementTarget = sword.runState;
+						else
+							movementTarget = sword.turnState;
+					}
+					else if (movementState == sword.crouchState)
+					{
+						if(facingRight)
+							movementTarget = sword.crouchForwardState;
+						else
+							movementTarget = sword.crouchBackState;
+					}
 				}
-				else if (movementState == sword.crouchState)
+				if (leftPressed)
 				{
-					if(facingRight)
-						movementTarget = sword.crouchForwardState;
+					if (movementState == sword.movementIdleState || movementState == sword.runState)
+					{
+						if(!facingRight)
+							movementTarget = sword.runState;
+						else
+							movementTarget = sword.turnState;
+					}
+					else if (movementState == sword.crouchState)
+					{
+						if(!facingRight)
+							movementTarget = sword.crouchForwardState;
+						else
+							movementTarget = sword.crouchBackState;
+					}
+				}
+				
+				if (crouchPressed)
+				{
+					if (movementState == sword.runState)
+						movementTarget = sword.slideState;
 					else
-						movementTarget = sword.crouchBackState;
+						movementTarget = sword.crouchState;
+				}
+				
+				if (jumpPressed)
+				{
+					if (movementState == sword.movementIdleState)
+						movementTarget = sword.jumpState;
+					else if (movementState == sword.runState)
+						movementTarget = sword.jumpForwardState;
+					else if (movementState == sword.crouchForwardState)
+						movementTarget = sword.hopForwardState;
+					else if (movementState == sword.crouchBackState)
+						movementTarget = sword.hopBackState;
 				}
 			}
-			if (leftPressed)
-			{
-				if (movementState == sword.movementIdleState || movementState == sword.runState)
-				{
-					if(!facingRight)
-						movementTarget = sword.runState;
-					else
-						movementTarget = sword.turnState;
-				}
-				else if (movementState == sword.crouchState)
-				{
-					if(!facingRight)
-						movementTarget = sword.crouchForwardState;
-					else
-						movementTarget = sword.crouchBackState;
-				}
-			}
-			
-			if (crouchPressed)
-			{
-				if (movementState == sword.runState)
-					movementTarget = sword.slideState;
-				else
-					movementTarget = sword.crouchState;
-			}
-			
-			if (jumpPressed)
-			{
-				if (movementState == sword.movementIdleState)
-					movementTarget = sword.jumpState;
-				else if (movementState == sword.runState)
-					movementTarget = sword.jumpForwardState;
-				else if (movementState == sword.crouchForwardState)
-					movementTarget = sword.hopForwardState;
-				else if (movementState == sword.crouchBackState)
-					movementTarget = sword.hopBackState;
-			}
-			
 			//advance to next state
 			if (movementStateTimer.finished)
 			{
@@ -160,32 +181,41 @@ package
 														movementTarget != sword.hopForwardState || 
 														movementTarget != sword.hopBackState ||
 														movementTarget != sword.slideState))
-				{/*do nothing*/}
+				{
+					movementProcess = ONGOING
+				}
 				else
 				{
 					if (movementProcess == WINDUP)
 					{
 						movementWindupToOngoing(movementState);
-						movementProcess == ONGOING;
+						movementStateTimer.start(movementState.ongoingTime);
+						movementProcess = ONGOING;
 					}
 					else if (movementProcess == ONGOING)
 					{
 						transitionMovementStates(movementState, movementTarget);
+						movementStateTimer.start(movementTarget.windupTime);
+						trace(movementTarget.name);
 						movementState = movementTarget;
-						movementTarget = sword.movementIdleState;
+						//movementTarget = sword.movementIdleState;
+						movementProcess = WINDUP;
 					}
 				}
 			}
 		}
-		
 		private function movementWindupToOngoing(state:FighterState):void
 		{
 		}
 		private function transitionMovementStates(state:FighterState, target:FighterState):void
 		{
-		
+			switch(state.ID)
+			{
+				case MOVEMENT_TURN:
+					facingRight = !facingRight;
+					break;
+			}
 		}
-		
 		public function resetInput():void
 		{
 			 rightPressed = false;

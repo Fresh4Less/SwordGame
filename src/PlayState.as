@@ -32,7 +32,13 @@ package
 		override public function update():void
 		{
 			super.update();
-			FlxG.collide(player1, platforms);
+			if (FlxG.collide(player1, platforms))
+			{
+				//TODO: change this so only a "foot" collider will set this true
+				player1.isOnGround = true;
+			}
+			else
+				player1.isOnGround = false;
 		}
 	}
 
