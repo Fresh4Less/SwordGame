@@ -46,22 +46,22 @@ package
 		public function FighterSword() 
 		{
 			runWindupTime = 0.1;
-			runOngoingTime = 0.0;
+			runOngoingTime = 0.01;
 			runRecoveryTime = 0.1;
 			crouchWindupTime = 0.1;
-			crouchOngoingTime = 0.0;
+			crouchOngoingTime = 0.01;
 			crouchRecoveryTime = 0.1;
 			crouchBackWindupTime = 0.1;
-			crouchBackOngoingTime = 0.0;
+			crouchBackOngoingTime = 0.01;
 			crouchBackRecoveryTime = 0.1;
 			crouchForwardWindupTime = 0.1;
-			crouchForwardOngoingTime = 0.0;
+			crouchForwardOngoingTime = 0.01;
 			crouchForwardRecoveryTime = 0.1;
 			jumpWindupTime = 0.1;
-			jumpOngoingTime = 0.0;
+			jumpOngoingTime = 0.01;
 			jumpRecoveryTime = 0.1;
 			jumpForwardWindupTime = 0.1;
-			jumpForwardOngoingTime = 0.0;
+			jumpForwardOngoingTime = 0.01;
 			jumpForwardRecoveryTime = 0.1;
 			hopForwardWindupTime = 0.1;
 			hopForwardOngoingTime = 0.1;

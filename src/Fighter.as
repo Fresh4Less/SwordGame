@@ -49,7 +49,7 @@ package
 		private var attackProcess:int = ONGOING;
 		private var attackTarget:int = ATTACK_IDLE;
 		
-		private var stateTimer:FlxTimer;
+		private var movementStateTimer:FlxTimer;
 		
 		private var sword:FighterSword;
 		private var facingRight:Boolean;
@@ -62,8 +62,8 @@ package
 			drag.x = maxVelocity.x * 4;
 			drag.y = 0;
 			resetInput();
-			stateTimer = new FlxTimer();
-			stateTimer.start(0.0);
+			movementStateTimer = new FlxTimer();
+			movementStateTimer.start(0.01);
 			sword = new FighterSword();
 			facingRight = true;
 		}
@@ -75,6 +75,15 @@ package
 			
 			updateStates();
 			resetInput();
+			acceleration.x = 0;
+			acceleration.y = 900;
+			if (movementState == MOVEMENT_RUN)
+			{
+				if (facingRight)
+					acceleration.x = drag.x;
+				else
+					acceleration.x = -drag.x;
+			}
 			super.update();
 		}
 		
@@ -138,7 +147,7 @@ package
 			}
 			
 			//advance to next state
-			if (stateTimer.finished)
+			if (movementStateTimer.finished)
 			{
 				if (movementState == movementTarget && (movementTarget != MOVEMENT_TURN || 
 														movementTarget != MOVEMENT_HOP_FORWARD || 
@@ -147,11 +156,42 @@ package
 				{/*do nothing*/}
 				else
 				{
-					//play appropriate animation
-					switch(movementState)
+					if (movementProcess == WINDUP)
 					{
+						movementWindupToOngoing(movementState);
+						movementProcess == ONGOING;
+					}
+					else if (movementProcess == ONGOING)
+					{
+						transitionMovementStates(movementState, movementTarget);
+						movementState = movementTarget;
+						movementTarget = MOVEMENT_IDLE;
 					}
 				}
+			}
+		}
+		
+		private function movementWindupToOngoing(state:int)
+		{
+			switch(state)
+			{
+				
+			}
+		}
+		private function transitionMovementStates(state:int, target:int):void
+		{
+			//finishing/cleanup on last state
+			switch(state)
+			{
+				
+			}
+			//init for new state
+			switch(target)
+			{
+				//case MOVEMENT_IDLE:
+					//movementStateTimer.start(
+					//break;
+
 			}
 		}
 		
