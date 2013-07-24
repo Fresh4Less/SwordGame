@@ -84,18 +84,22 @@ package
 		public function pressRight():void
 		{
 			rightPressed = true;
+			leftPressed = false;
 		}
 		public function pressLeft():void
 		{
 			leftPressed = true;
+			rightPressed = false;
 		}
 		public function pressUp():void
 		{
 			upPressed = true;
+			downPressed = false;
 		}
 		public function pressDown():void
 		{
 			downPressed = true;
+			upPressed = true;
 		}
 		public function pressCrouch():void
 		{
