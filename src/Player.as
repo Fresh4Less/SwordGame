@@ -1,8 +1,13 @@
 package  
 {
+	/**
+	 * ...
+	 * @author Elliot Hatch
+	 */
 	import org.flixel.*;
 	public class Player extends Fighter
 	{
+		
 		public function Player(X:int, Y:int)
 		{
 			super(X, Y);

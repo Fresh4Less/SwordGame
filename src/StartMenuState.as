@@ -1,5 +1,9 @@
 package  
 {
+	/**
+	 * ...
+	 * @author Elliot
+	 */
 	import org.flixel.*;
 	public class StartMenuState extends FlxState
 	{

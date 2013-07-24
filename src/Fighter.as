@@ -1,5 +1,9 @@
 package  
 {
+	/**
+	 * ...
+	 * @author Elliot Hatch
+	 */
 	import org.flixel.*;
 	public class Fighter extends FlxSprite
 	{

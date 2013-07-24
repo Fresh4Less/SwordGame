@@ -1,5 +1,9 @@
 package  
 {
+	/**
+	 * ...
+	 * @author Elliot Hatch
+	 */
 	import org.flixel.*;
 	import org.flixel.plugin.photonstorm.*;
 	public class PlayState extends FlxState 
