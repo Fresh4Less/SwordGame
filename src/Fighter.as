@@ -18,36 +18,38 @@ package
 		protected var stabPressed:Boolean;
 
 		//movement states
-		private static const MOVEMENT_IDLE:int = 0;
-		private static const MOVEMENT_RUN:int = 1;
-		private static const MOVEMENT_CROUCH:int = 2;
-		private static const MOVEMENT_JUMP:int = 3;
-		private static const MOVEMENT_HOP_FORWARD:int = 4;
-		private static const MOVEMENT_HOP_BACK:int = 5;
-		private static const MOVEMENT_SLIDE:int = 6;
-		private static const MOVEMENT_TURN:int = 7;
-		private static const MOVEMENT_CROUCH_BACK:int = 8;
-		private static const MOVEMENT_CROUCH_FORWARD:int = 9;
-		private static const MOVEMENT_JUMP_FORWARD:int = 10;
+		public static const MOVEMENT_IDLE:int = 0;
+		public static const MOVEMENT_RUN:int = 1;
+		public static const MOVEMENT_CROUCH:int = 2;
+		public static const MOVEMENT_JUMP:int = 3;
+		public static const MOVEMENT_HOP_FORWARD:int = 4;
+		public static const MOVEMENT_HOP_BACK:int = 5;
+		public static const MOVEMENT_SLIDE:int = 6;
+		public static const MOVEMENT_TURN:int = 7;
+		public static const MOVEMENT_CROUCH_BACK:int = 8;
+		public static const MOVEMENT_CROUCH_FORWARD:int = 9;
+		public static const MOVEMENT_JUMP_FORWARD:int = 10;
 
 		//attack states
-		private static const ATTACK_IDLE:int = 0;
-		private static const ATTACK_STAB:int = 1;
-		private static const ATTACK_SLASH:int = 2;
+		public static const ATTACK_IDLE:int = 0;
+		public static const ATTACK_STAB:int = 1;
+		public static const ATTACK_SLASH:int = 2;
 
 		//process states
-		private static const WINDUP:int = 0;
-		private static const ONGOING:int = 1;
-		private static const RECOVERY:int = 2;
-
+		public static const WINDUP:int = 0;
+		public static const ONGOING:int = 1;
+		public static const RECOVERY:int = 2;
+		
+		//state objects
+		
 		//state variables
-		private var movementState:int = MOVEMENT_IDLE;
-		private var movementProcess:int = ONGOING;
-		private var movementTarget:int = MOVEMENT_IDLE;
+		private var movementState:FighterState;
+		private var movementProcess:int;
+		private var movementTarget:FighterState;
 
-		private var attackState:int = ATTACK_IDLE;
-		private var attackProcess:int = ONGOING;
-		private var attackTarget:int = ATTACK_IDLE;
+		private var attackState:FighterState;
+		private var attackProcess:int;
+		private var attackTarget:FighterState;
 		
 		private var movementStateTimer:FlxTimer;
 		
@@ -65,6 +67,12 @@ package
 			movementStateTimer = new FlxTimer();
 			movementStateTimer.start(0.01);
 			sword = new FighterSword();
+			movementState = sword.movementIdleState;
+			movementTarget = sword.movementIdleState;
+			movementProcess = ONGOING;
+			attackState = sword.attackIdleState;
+			attackTarget = sword.attackIdleState;
+			movementProcess = ONGOING;
 			facingRight = true;
 		}
 		
@@ -72,12 +80,11 @@ package
 		{
 			//acceleration.x = 0;
 			//acceleration.y = 900;
-			
 			updateStates();
 			resetInput();
 			acceleration.x = 0;
 			acceleration.y = 900;
-			if (movementState == MOVEMENT_RUN)
+			if (movementState == sword.runState)
 			{
 				if (facingRight)
 					acceleration.x = drag.x;
@@ -90,69 +97,69 @@ package
 		private function updateStates():void
 		{
 			//set target state
-			movementTarget = MOVEMENT_IDLE;
+			movementTarget = sword.movementIdleState;
 			if (rightPressed)
 			{
-				if (movementState == MOVEMENT_IDLE || movementState == MOVEMENT_RUN)
+				if (movementState == sword.movementIdleState || movementState == sword.runState)
 				{
 					if(facingRight)
-						movementTarget = MOVEMENT_RUN;
+						movementTarget = sword.runState;
 					else
-						movementTarget = MOVEMENT_TURN;
+						movementTarget = sword.turnState;
 				}
-				else if (movementState == MOVEMENT_CROUCH)
+				else if (movementState == sword.crouchState)
 				{
 					if(facingRight)
-						movementTarget = MOVEMENT_CROUCH_FORWARD;
+						movementTarget = sword.crouchForwardState;
 					else
-						movementTarget = MOVEMENT_CROUCH_BACK;
+						movementTarget = sword.crouchBackState;
 				}
 			}
 			if (leftPressed)
 			{
-				if (movementState == MOVEMENT_IDLE || movementState == MOVEMENT_RUN)
+				if (movementState == sword.movementIdleState || movementState == sword.runState)
 				{
 					if(!facingRight)
-						movementTarget = MOVEMENT_RUN;
+						movementTarget = sword.runState;
 					else
-						movementTarget = MOVEMENT_TURN;
+						movementTarget = sword.turnState;
 				}
-				else if (movementState == MOVEMENT_CROUCH)
+				else if (movementState == sword.crouchState)
 				{
 					if(!facingRight)
-						movementTarget = MOVEMENT_CROUCH_FORWARD;
+						movementTarget = sword.crouchForwardState;
 					else
-						movementTarget = MOVEMENT_CROUCH_BACK;
+						movementTarget = sword.crouchBackState;
 				}
 			}
 			
 			if (crouchPressed)
 			{
-				if (movementState == MOVEMENT_RUN)
-					movementTarget = MOVEMENT_SLIDE;
+				if (movementState == sword.runState)
+					movementTarget = sword.slideState;
 				else
-					movementTarget = MOVEMENT_CROUCH;
+					movementTarget = sword.crouchState;
 			}
 			
 			if (jumpPressed)
 			{
-				if (movementState == MOVEMENT_IDLE)
-					movementTarget = MOVEMENT_JUMP;
-				else if (movementState == MOVEMENT_RUN)
-					movementTarget = MOVEMENT_JUMP_FORWARD;
-				else if (movementState == MOVEMENT_CROUCH_FORWARD)
-					movementTarget = MOVEMENT_HOP_FORWARD;
-				else if (movementState == MOVEMENT_CROUCH_BACK)
-					movementTarget = MOVEMENT_HOP_BACK;
+				if (movementState == sword.movementIdleState)
+					movementTarget = sword.jumpState;
+				else if (movementState == sword.runState)
+					movementTarget = sword.jumpForwardState;
+				else if (movementState == sword.crouchForwardState)
+					movementTarget = sword.hopForwardState;
+				else if (movementState == sword.crouchBackState)
+					movementTarget = sword.hopBackState;
 			}
 			
 			//advance to next state
 			if (movementStateTimer.finished)
 			{
-				if (movementState == movementTarget && (movementTarget != MOVEMENT_TURN || 
-														movementTarget != MOVEMENT_HOP_FORWARD || 
-														movementTarget != MOVEMENT_HOP_BACK ||
-														movementTarget != MOVEMENT_SLIDE))
+				if (movementState == movementTarget && (movementTarget != sword.turnState || 
+														movementTarget != sword.hopForwardState || 
+														movementTarget != sword.hopBackState ||
+														movementTarget != sword.slideState))
 				{/*do nothing*/}
 				else
 				{
@@ -165,34 +172,18 @@ package
 					{
 						transitionMovementStates(movementState, movementTarget);
 						movementState = movementTarget;
-						movementTarget = MOVEMENT_IDLE;
+						movementTarget = sword.movementIdleState;
 					}
 				}
 			}
 		}
 		
-		private function movementWindupToOngoing(state:int)
+		private function movementWindupToOngoing(state:FighterState):void
 		{
-			switch(state)
-			{
-				
-			}
 		}
-		private function transitionMovementStates(state:int, target:int):void
+		private function transitionMovementStates(state:FighterState, target:FighterState):void
 		{
-			//finishing/cleanup on last state
-			switch(state)
-			{
-				
-			}
-			//init for new state
-			switch(target)
-			{
-				//case MOVEMENT_IDLE:
-					//movementStateTimer.start(
-					//break;
-
-			}
+		
 		}
 		
 		public function resetInput():void
