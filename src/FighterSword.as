@@ -6,6 +6,30 @@ package
 	 */
 	public class FighterSword 
 	{
+		/*
+		public var turnTime:Number;
+		public var jumpTime:Number;
+		public var jumpForwardTime:Number;
+		public var crouchTime:Number;
+		public var crouchBackTime:Number;
+		public var crouchForwardTime:Number;
+		public var hopBackTime:Number;
+		public var hopForwardTime:Number;
+		public var slideTime:Number;
+		*/
+		public var stabWindupTime:Number;
+		public var stabTime:Number;
+		public var stabRecoveryTime:Number;
+		public var slashWindupTime:Number;
+		public var slashTime:Number;
+		public var slashRecoveryTime:Number;
+		/*
+		public var stabWindupTime:Number;
+		public var stabTime:Number;
+		public var stabRecoveryTime:Number;
+		public var slashWindupTime:Number;
+		public var slashTime:Number;
+		public var slashRecoveryTime:Number;
 		public var runWindupTime:Number;
 		public var runOngoingTime:Number;
 		public var runRecoveryTime:Number;
@@ -42,9 +66,11 @@ package
 		public var slashWindupTime:Number;
 		public var slashOngoingTime:Number;
 		public var slashRecoveryTime:Number;
-		
+		*/
 		//states
-		public var movementIdleState:FighterState;
+		//public var movementStates:Vector.<int>;
+		public var attackStates:Vector.<int>;
+		/*public var movementIdleState:FighterState;
 		public var attackIdleState:FighterState;
 		public var runState:FighterState;
 		public var crouchState:FighterState;
@@ -57,62 +83,49 @@ package
 		public var slideState:FighterState;
 		public var turnState:FighterState;
 		public var stabState:FighterState;
-		public var slashState:FighterState;
+		public var slashState:FighterState;*/
 		
 		public function FighterSword() 
 		{
-			runWindupTime = 0.1;
-			runOngoingTime = 0.01;
-			runRecoveryTime = 0.1;
-			crouchWindupTime = 0.1;
-			crouchOngoingTime = 0.01;
-			crouchRecoveryTime = 0.1;
-			crouchBackWindupTime = 0.1;
-			crouchBackOngoingTime = 0.01;
-			crouchBackRecoveryTime = 0.1;
-			crouchForwardWindupTime = 0.1;
-			crouchForwardOngoingTime = 0.01;
-			crouchForwardRecoveryTime = 0.1;
-			jumpWindupTime = 0.1;
-			jumpOngoingTime = 0.01;
-			jumpRecoveryTime = 0.1;
-			jumpForwardWindupTime = 0.1;
-			jumpForwardOngoingTime = 0.01;
-			jumpForwardRecoveryTime = 0.1;
-			hopForwardWindupTime = 0.1;
-			hopForwardOngoingTime = 0.1;
-			hopForwardRecoveryTime = 0.1;
-			hopBackWindupTime = 0.1;
-			hopBackOngoingTime = 0.1;
-			hopBackRecoveryTime = 0.1;
-			slideWindupTime = 0.1;
-			slideOngoingTime = 0.1;
-			slideRecoveryTime = 0.1;
-			turnWindupTime = 0.1;
-			turnOngoingTime = 0.1;
-			turnRecoveryTime = 0.1;
+			/*
+			turnTime = 0.1;
+			jumpTime = 0.01;
+			jumpForwardTime = 0.01;
+			crouchTime = 0.01;
+			crouchBackTime = 0.01;
+			crouchForwardTime = 0.01;
+			hopBackTime = 0.1;
+			hopForwardTime = 0.1;
+			slideTime = 0.1;
+			*/
 			stabWindupTime = 0.1;
-			stabOngoingTime = 0.1;
+			stabTime = 0.1;
 			stabRecoveryTime = 0.1;
 			slashWindupTime = 0.1;
-			slashOngoingTime = 0.1;
+			slashTime = 0.1;
 			slashRecoveryTime = 0.1;
-			
-			movementIdleState = new FighterState(Fighter.MOVEMENT_IDLE, "movementIdle");
-			attackIdleState = new FighterState(Fighter.ATTACK_IDLE, "attackIdle");
-			runState = new FighterState(Fighter.MOVEMENT_RUN, "run", runWindupTime, runOngoingTime, runRecoveryTime);
-			crouchState = new FighterState(Fighter.MOVEMENT_CROUCH, "crouch", crouchWindupTime, crouchOngoingTime, crouchRecoveryTime);
-			crouchForwardState = new FighterState(Fighter.MOVEMENT_CROUCH_FORWARD, "crouchForward", crouchForwardWindupTime, crouchForwardOngoingTime, 
-																															crouchForwardRecoveryTime);
-			crouchBackState = new FighterState(Fighter.MOVEMENT_CROUCH_BACK, "crouchBack", crouchBackWindupTime, crouchBackOngoingTime, crouchBackRecoveryTime);
-			jumpState = new FighterState(Fighter.MOVEMENT_JUMP, "jump", jumpWindupTime, jumpOngoingTime, jumpRecoveryTime);
-			jumpForwardState = new FighterState(Fighter.MOVEMENT_JUMP_FORWARD, "jumpForward", jumpForwardWindupTime, jumpForwardOngoingTime, jumpForwardRecoveryTime);
-			hopForwardState = new FighterState(Fighter.MOVEMENT_HOP_FORWARD, "hopForward", hopForwardWindupTime, hopForwardOngoingTime, hopForwardRecoveryTime);
-			hopBackState = new FighterState(Fighter.MOVEMENT_HOP_BACK, "hopBack", hopBackWindupTime, hopBackOngoingTime, hopBackRecoveryTime);
-			slideState = new FighterState(Fighter.MOVEMENT_SLIDE, "slide", slideWindupTime, slideOngoingTime, slideRecoveryTime);
-			turnState = new FighterState(Fighter.MOVEMENT_TURN, "turn", turnWindupTime, turnOngoingTime, turnRecoveryTime);
-			stabState = new FighterState(Fighter.ATTACK_STAB, "stab", stabWindupTime, stabOngoingTime, stabRecoveryTime);
-			slashState = new FighterState(Fighter.ATTACK_SLASH, "slash", slashWindupTime, slashOngoingTime, slashRecoveryTime);
+			/*
+			movementStates = new Vector.<int>();
+			movementStates[Fighter.MOVEMENT_IDLE] = 0;
+			movementStates[Fighter.MOVEMENT_RUN] = 0;
+			movementStates[Fighter.MOVEMENT_TURN] = turnTime;
+			movementStates[Fighter.MOVEMENT_JUMP] = jumpTime;
+			movementStates[Fighter.MOVEMENT_JUMP_FORWARD] = jumpForwardTime;
+			movementStates[Fighter.MOVEMENT_CROUCH] = crouchTime;
+			movementStates[Fighter.MOVEMENT_CROUCH_BACK] = crouchBackTime;
+			movementStates[Fighter.MOVEMENT_CROUCH_FORWARD] = crouchForwardTime;
+			movementStates[Fighter.MOVEMENT_HOP_BACK] = hopBackTime;
+			movementStates[Fighter.MOVEMENT_HOP_FORWARD] = hopForwardTime;
+			movementStates[Fighter.MOVEMENT_SLIDE] = slideTime;
+			*/
+			attackStates = new Vector.<int>();
+			attackStates[Fighter.ATTACK_IDLE] = 0;
+			attackStates[Fighter.ATTACK_STAB_WINDUP] = stabWindupTime;
+			attackStates[Fighter.ATTACK_STAB] = stabTime;
+			attackStates[Fighter.ATTACK_STAB_RECOVERY] = stabRecoveryTime;
+			attackStates[Fighter.ATTACK_SLASH_WINDUP] = slashWindupTime;
+			attackStates[Fighter.ATTACK_SLASH] = slashTime;
+			attackStates[Fighter.ATTACK_SLASH_RECOVERY] = slashRecoveryTime;
 		}
 		
 	}

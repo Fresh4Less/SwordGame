@@ -8,10 +8,8 @@ package
 	public class Fighter extends FlxSprite
 	{
 		//virtual keyboard
-		protected var rightPressed:Boolean;
-		protected var leftPressed:Boolean;
-		protected var upPressed:Boolean;
-		protected var downPressed:Boolean;
+		protected var leftRightButton:int;
+		protected var upDownButton:int;
 		protected var crouchPressed:Boolean;
 		protected var jumpPressed:Boolean;
 		protected var slashPressed:Boolean;
@@ -20,43 +18,46 @@ package
 		//movement states
 		public static const MOVEMENT_IDLE:int = 0;
 		public static const MOVEMENT_RUN:int = 1;
-		public static const MOVEMENT_CROUCH:int = 2;
+		public static const MOVEMENT_TURN:int = 2;
 		public static const MOVEMENT_JUMP:int = 3;
-		public static const MOVEMENT_HOP_FORWARD:int = 4;
-		public static const MOVEMENT_HOP_BACK:int = 5;
-		public static const MOVEMENT_SLIDE:int = 6;
-		public static const MOVEMENT_TURN:int = 7;
-		public static const MOVEMENT_CROUCH_BACK:int = 8;
-		public static const MOVEMENT_CROUCH_FORWARD:int = 9;
-		public static const MOVEMENT_JUMP_FORWARD:int = 10;
+		public static const MOVEMENT_JUMP_FORWARD:int = 4;
+		public static const MOVEMENT_CROUCH:int = 5;
+		public static const MOVEMENT_CROUCH_BACK:int = 6;
+		public static const MOVEMENT_CROUCH_FORWARD:int = 7;
+		public static const MOVEMENT_HOP_BACK:int = 8;
+		public static const MOVEMENT_HOP_FORWARD:int = 9;
+		public static const MOVEMENT_SLIDE:int = 10;
 
 		//attack states
 		public static const ATTACK_IDLE:int = 0;
-		public static const ATTACK_STAB:int = 1;
-		public static const ATTACK_SLASH:int = 2;
+		public static const ATTACK_STAB_WINDUP:int = 1;
+		public static const ATTACK_STAB:int = 2;
+		public static const ATTACK_STAB_RECOVERY:int = 3;
+		public static const ATTACK_SLASH_WINDUP:int = 4;
+		public static const ATTACK_SLASH:int = 5;
+		public static const ATTACK_SLASH_RECOVERY:int = 6;
 
-		//process states
-		public static const WINDUP:int = 0;
-		public static const ONGOING:int = 1;
-		public static const RECOVERY:int = 2;
-		
-		//state objects
+		//directions
+		public static const NONE:int = 0;
+		public static const LEFT:int = 1;
+		public static const RIGHT:int = 2;
+		public static const UP:int = 3;
+		public static const DOWN:int = 4;
 		
 		//state variables
-		private var movementState:FighterState;
-		private var movementProcess:int;
-		private var movementTarget:FighterState;
+		public var movementState:int;
+		public var movementTarget:int;
 
-		private var attackState:FighterState;
-		private var attackProcess:int;
-		private var attackTarget:FighterState;
+		public var movementDirection:int;
+		public var isOnGround:Boolean = false;
+
+		public var attackState:int;
+		public var attackTarget:int;
 		
-		private var movementStateTimer:FlxTimer;
+		private var movementTimer:FlxTimer;
+		private var attackTimer:FlxTimer;
 		
 		private var sword:FighterSword;
-		private var facingRight:Boolean;
-		
-		public var isOnGround:Boolean = false;
 		
 		public function Fighter(X:Number, Y:Number)
 		{
@@ -66,16 +67,16 @@ package
 			drag.x = maxVelocity.x * 4;
 			drag.y = 0;
 			resetInput();
-			movementStateTimer = new FlxTimer();
-			movementStateTimer.start(0.01);
+			movementTimer = new FlxTimer();
+			movementTimer.start(0.01);
 			sword = new FighterSword();
-			movementState = sword.movementIdleState;
-			movementTarget = sword.movementIdleState;
-			movementProcess = ONGOING;
-			attackState = sword.attackIdleState;
-			attackTarget = sword.attackIdleState;
-			movementProcess = ONGOING;
-			facingRight = true;
+
+			movementState = MOVEMENT_IDLE;
+			movementTarget = MOVEMENT_IDLE;
+			movementDirection = RIGHT;
+
+			attackState = ATTACK_IDLE;
+			attackTarget = ATTACK_IDLE;
 		}
 		
 		override public function update():void
@@ -87,30 +88,104 @@ package
 			acceleration.x = 0;
 			acceleration.y = 900;
 			drag.x = maxVelocity.x * 4;
-			if (movementState == sword.runState)
+			
+			if (movementState == MOVEMENT_RUN)
 			{
-				if (facingRight)
+				if (movementDirection == RIGHT)
 					acceleration.x = drag.x;
 				else
 					acceleration.x = -drag.x;
 			}
-			else if (isOnGround && (movementState == sword.jumpState || movementState == sword.jumpForwardState))
+			else if (isOnGround && (movementState == MOVEMENT_JUMP || movementState == MOVEMENT_JUMP_FORWARD))
 			{
 				velocity.y = -400;
 				drag.x = 0;
 			}
-			else if (!isOnGround && (movementState == sword.jumpState || movementState == sword.jumpForwardState))
+			else if (!isOnGround && (movementState == MOVEMENT_JUMP || movementState == MOVEMENT_JUMP_FORWARD))
 			{
 				drag.x = 0;
 			}
+			
 			super.update();
 		}
 		
 		private function updateStates():void
 		{
-			//set target state
-			movementTarget = sword.movementIdleState;
+			switch (movementState) {
+				case MOVEMENT_IDLE:
+					if (leftRightButton != NONE)
+					{
+						if (leftRightButton == movementDirection)
+						{
+							movementState = MOVEMENT_RUN;
+						}
+						else
+						{
+							movementState = MOVEMENT_TURN;
+						}
+					}
+				break;
+				case MOVEMENT_RUN:
+					if (leftRightButton == NONE)
+					{
+						movementState = MOVEMENT_IDLE;
+					}
+					else if (leftRightButton != movementDirection)
+					{
+						movementState = MOVEMENT_TURN;
+					}
+				break;
+				case MOVEMENT_TURN:
+					// once we have an animation/timer, check to see that it is done first
+					if (movementDirection == RIGHT)
+					{
+						movementDirection = LEFT;
+					}
+					else
+					{
+						movementDirection = RIGHT;
+					}
+
+					if (leftRightButton == NONE) {
+						movementState = MOVEMENT_IDLE;
+					}
+					else if (leftRightButton != movementDirection) {
+						//do animation/timer over again
+						movementState = MOVEMENT_TURN;
+					}
+					else
+					{
+						movementState = MOVEMENT_RUN;
+					}
+				break;
+				case MOVEMENT_JUMP:
+
+				break;
+				case MOVEMENT_JUMP_FORWARD:
+
+				break;
+				case MOVEMENT_CROUCH:
+
+				break;
+				case MOVEMENT_CROUCH_BACK:
+
+				break;
+				case MOVEMENT_CROUCH_FORWARD:
+
+				break;
+				case MOVEMENT_HOP_BACK:
+
+				break;
+				case MOVEMENT_HOP_FORWARD:
+
+				break;
+				case MOVEMENT_SLIDE:
+
+				break;
+			}
+			
 			//if in air force a jump state
+			/*
 			if (!isOnGround && (movementState != sword.jumpState || movementState != sword.jumpForwardState))
 			{
 				movementTarget = sword.jumpForwardState;
@@ -203,8 +278,9 @@ package
 					}
 				}
 			}
+			*/
 		}
-		private function movementWindupToOngoing(state:FighterState):void
+		/*private function movementWindupToOngoing(state:FighterState):void
 		{
 		}
 		private function transitionMovementStates(state:FighterState, target:FighterState):void
@@ -215,13 +291,11 @@ package
 					facingRight = !facingRight;
 					break;
 			}
-		}
+		}*/
 		public function resetInput():void
 		{
-			 rightPressed = false;
-			 leftPressed = false;
-			 upPressed = false;
-			 downPressed = false;
+			 leftRightButton = NONE;
+			 upDownButton = NONE;
 			 crouchPressed = false;
 			 jumpPressed = false;
 			 slashPressed = false;
@@ -235,23 +309,19 @@ package
 		//if the player is in the middle of an attack, queues them up for one of the previous
 		public function pressRight():void
 		{
-			rightPressed = true;
-			leftPressed = false;
+			leftRightButton = RIGHT;
 		}
 		public function pressLeft():void
 		{
-			leftPressed = true;
-			rightPressed = false;
+			leftRightButton = LEFT;
 		}
 		public function pressUp():void
 		{
-			upPressed = true;
-			downPressed = false;
+			upDownButton = UP;
 		}
 		public function pressDown():void
 		{
-			downPressed = true;
-			upPressed = true;
+			upDownButton = DOWN;
 		}
 		public function pressCrouch():void
 		{
