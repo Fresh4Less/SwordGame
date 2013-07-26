@@ -3,6 +3,8 @@ bin/
 bin-debug/
 bin-release/
 
+game.swf
+
 # Other files and folders
 .settings/
 
