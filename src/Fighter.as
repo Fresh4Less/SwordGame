@@ -90,18 +90,31 @@ package
 			drag.x = maxVelocity.x * 4;
 			if (movementState == sword.runState)
 			{
-				if (facingRight)
-					acceleration.x = drag.x;
-				else
-					acceleration.x = -drag.x;
+				if (movementProcess == WINDUP)
+				{
+					velocity.x = sword.runSpeed * movementStateTimer.progress;
+					if (!facingRight)
+						velocity.x *= -1;
+				}
+				else if(movementProcess == ONGOING)
+					drag.x = 0;
+				else if (movementProcess == RECOVERY) //NOTE: RECOVERY DOESN'T REALLY EXIST
+				{
+					velocity.x = sword.runSpeed * (1.0 - movementStateTimer.progress);
+					if (!facingRight)
+						velocity.x *= -1;
+				}
 			}
-			else if (isOnGround && (movementState == sword.jumpState || movementState == sword.jumpForwardState) 
-								&& movementProcess == WINDUP)
+			if (movementState == sword.slideState)
 			{
-				velocity.y = -400;
+				drag.x = 100;
+				trace("sliding");
+			}
+			if (!isOnGround && (movementState == sword.jumpState || movementState == sword.jumpForwardState))
+			{
 				drag.x = 0;
 			}
-			else if (!isOnGround && (movementState == sword.jumpState || movementState == sword.jumpForwardState))
+			if (movementState == sword.hopBackState || movementState == sword.hopForwardState)
 			{
 				drag.x = 0;
 			}
@@ -157,7 +170,7 @@ package
 				
 				if (crouchPressed)
 				{
-					if (movementState == sword.runState)
+					if (movementState == sword.runState || movementState == sword.slideState)
 						movementTarget = sword.slideState;
 					else
 						movementTarget = sword.crouchState;
@@ -196,7 +209,8 @@ package
 															movementTarget == sword.jumpForwardState ||
 															movementTarget == sword.crouchBackState ||
 															movementTarget == sword.crouchState ||
-															movementTarget == sword.crouchForwardState))
+															movementTarget == sword.crouchForwardState ||
+															movementTarget == sword.slideState))
 					{
 						movementTarget = sword.movementIdleState;
 					}
@@ -239,6 +253,38 @@ package
 		
 		private function movementWindupToOngoing(state:FighterState):void
 		{
+			switch(state.ID)
+			{
+				case MOVEMENT_JUMP:
+					if (isOnGround)
+					{
+					velocity.y = -400;
+					drag.x = 0;
+					}
+					break;
+				case MOVEMENT_JUMP_FORWARD:
+					//MOVE THIS CHECK SOMEWHERE ELSE
+					if (isOnGround)
+					{
+					velocity.y = -400;
+					if (facingRight)
+						velocity.x += 50;
+					else
+						velocity.x -= 50;
+					drag.x = 0;
+					}
+					break;
+				case MOVEMENT_HOP_FORWARD:
+						velocity.x = 100;
+					if (facingRight)
+						velocity.x *= -1;
+					break;
+				case MOVEMENT_HOP_BACK:
+						velocity.x = -100;
+					if (facingRight)
+						velocity.x *= -1;
+					break;
+			}
 		}
 		
 		private function transitionMovementStates(state:FighterState, target:FighterState):void

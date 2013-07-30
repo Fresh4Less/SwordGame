@@ -43,6 +43,8 @@ package
 		public var slashOngoingTime:Number;
 		public var slashRecoveryTime:Number;
 		
+		public var runSpeed:Number;
+		
 		//states
 		public var movementIdleState:FighterState;
 		public var attackIdleState:FighterState;
@@ -97,6 +99,8 @@ package
 			slashWindupTime = 0.1;
 			slashOngoingTime = 0.1;
 			slashRecoveryTime = 0.1;
+			
+			runSpeed = 200;
 			
 			movementIdleState = new FighterState(Fighter.MOVEMENT_IDLE, "movementIdle");
 			attackIdleState = new FighterState(Fighter.ATTACK_IDLE, "attackIdle");
