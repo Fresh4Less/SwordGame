@@ -1,10 +1,11 @@
-package  
+package
 {
 	/**
 	 * ...
 	 * @author Elliot Hatch
 	 */
 	import org.flixel.*;
+	
 	public class Fighter extends FlxSprite
 	{
 		//virtual keyboard
@@ -16,7 +17,7 @@ package
 		protected var jumpPressed:Boolean;
 		protected var slashPressed:Boolean;
 		protected var stabPressed:Boolean;
-
+		
 		//movement states
 		public static const MOVEMENT_IDLE:int = 0;
 		public static const MOVEMENT_RUN:int = 1;
@@ -29,12 +30,12 @@ package
 		public static const MOVEMENT_CROUCH_BACK:int = 8;
 		public static const MOVEMENT_CROUCH_FORWARD:int = 9;
 		public static const MOVEMENT_JUMP_FORWARD:int = 10;
-
+		
 		//attack states
 		public static const ATTACK_IDLE:int = 0;
 		public static const ATTACK_STAB:int = 1;
 		public static const ATTACK_SLASH:int = 2;
-
+		
 		//process states
 		public static const WINDUP:int = 0;
 		public static const ONGOING:int = 1;
@@ -46,7 +47,7 @@ package
 		private var movementState:FighterState;
 		private var movementProcess:int;
 		private var movementTarget:FighterState;
-
+		
 		private var attackState:FighterState;
 		private var attackProcess:int;
 		private var attackTarget:FighterState;
@@ -94,7 +95,8 @@ package
 				else
 					acceleration.x = -drag.x;
 			}
-			else if (isOnGround && (movementState == sword.jumpState || movementState == sword.jumpForwardState))
+			else if (isOnGround && (movementState == sword.jumpState || movementState == sword.jumpForwardState) 
+								&& movementProcess == WINDUP)
 			{
 				velocity.y = -400;
 				drag.x = 0;
@@ -109,7 +111,6 @@ package
 		private function updateStates():void
 		{
 			//set target state
-			movementTarget = sword.movementIdleState;
 			//if in air force a jump state
 			if (!isOnGround && (movementState != sword.jumpState || movementState != sword.jumpForwardState))
 			{
@@ -123,14 +124,14 @@ package
 				{
 					if (movementState == sword.movementIdleState || movementState == sword.runState)
 					{
-						if(facingRight)
+						if (facingRight)
 							movementTarget = sword.runState;
 						else
 							movementTarget = sword.turnState;
 					}
 					else if (movementState == sword.crouchState)
 					{
-						if(facingRight)
+						if (facingRight)
 							movementTarget = sword.crouchForwardState;
 						else
 							movementTarget = sword.crouchBackState;
@@ -140,14 +141,14 @@ package
 				{
 					if (movementState == sword.movementIdleState || movementState == sword.runState)
 					{
-						if(!facingRight)
+						if (!facingRight)
 							movementTarget = sword.runState;
 						else
 							movementTarget = sword.turnState;
 					}
 					else if (movementState == sword.crouchState)
 					{
-						if(!facingRight)
+						if (!facingRight)
 							movementTarget = sword.crouchForwardState;
 						else
 							movementTarget = sword.crouchBackState;
@@ -177,56 +178,96 @@ package
 			//advance to next state
 			if (movementStateTimer.finished)
 			{
-				if (movementState == movementTarget && (movementTarget != sword.turnState || 
-														movementTarget != sword.hopForwardState || 
-														movementTarget != sword.hopBackState ||
-														movementTarget != sword.slideState))
+				if (movementProcess == WINDUP)
 				{
-					movementProcess = ONGOING
+					//trace("ongoing");
+					movementWindupToOngoing(movementState);
+					movementStateTimer.start(movementState.ongoingTime);
+					movementProcess = ONGOING;
+					//set idle, this way you can't queue actions in warmup unless it's a running jump
+					if (movementTarget != sword.jumpForwardState)
+						movementTarget = sword.movementIdleState;
 				}
-				else
+				else if (movementProcess == ONGOING)
 				{
-					if (movementProcess == WINDUP)
+					if (movementState == movementTarget && (movementTarget == sword.movementIdleState ||
+															movementTarget == sword.runState ||
+															movementTarget == sword.jumpState ||
+															movementTarget == sword.jumpForwardState ||
+															movementTarget == sword.crouchBackState ||
+															movementTarget == sword.crouchState ||
+															movementTarget == sword.crouchForwardState))
 					{
-						movementWindupToOngoing(movementState);
-						movementStateTimer.start(movementState.ongoingTime);
-						movementProcess = ONGOING;
+						movementTarget = sword.movementIdleState;
 					}
-					else if (movementProcess == ONGOING)
+					else
 					{
-						transitionMovementStates(movementState, movementTarget);
-						movementStateTimer.start(movementTarget.windupTime);
-						trace(movementTarget.name);
-						movementState = movementTarget;
-						//movementTarget = sword.movementIdleState;
-						movementProcess = WINDUP;
+						if (movementTarget == sword.movementIdleState)
+						{
+							//movementOngoingToRecovery(movementState);
+							transitionMovementStates(movementState, movementTarget);
+							movementProcess = RECOVERY;
+							movementStateTimer.start(movementState.recoveryTime);
+							//trace("recovery");
+						}
+						else
+						{
+							if (movementTarget == sword.jumpForwardState && !isOnGround)
+							{
+								movementTarget = sword.movementIdleState;
+								return;
+							}
+							transitionMovementStates(movementState, movementTarget);
+							movementStateTimer.start(movementTarget.windupTime);
+							//trace(movementTarget.name);
+							movementState = movementTarget;
+							movementTarget = sword.movementIdleState;
+							movementProcess = WINDUP;
+							//trace("transition");
+						}
 					}
+				}
+				else if (movementProcess == RECOVERY)
+				{
+					movementState = sword.movementIdleState;
+					//skip idle warmup
+					movementProcess = ONGOING;
+					movementTarget = sword.movementIdleState;
 				}
 			}
 		}
+		
 		private function movementWindupToOngoing(state:FighterState):void
 		{
 		}
+		
 		private function transitionMovementStates(state:FighterState, target:FighterState):void
 		{
-			switch(state.ID)
+			switch (state.ID)
 			{
-				case MOVEMENT_TURN:
+				case MOVEMENT_TURN: 
 					facingRight = !facingRight;
 					break;
 			}
 		}
+		
+		private function movementOngoingToRecovery(state:FighterState):void
+		{
+		
+		}
+		
 		public function resetInput():void
 		{
-			 rightPressed = false;
-			 leftPressed = false;
-			 upPressed = false;
-			 downPressed = false;
-			 crouchPressed = false;
-			 jumpPressed = false;
-			 slashPressed = false;
-			 stabPressed = false;
+			rightPressed = false;
+			leftPressed = false;
+			upPressed = false;
+			downPressed = false;
+			crouchPressed = false;
+			jumpPressed = false;
+			slashPressed = false;
+			stabPressed = false;
 		}
+		
 		//raw input interface, called based on keyboard input, etc.
 		//all these do is set the next queued action
 		//if the player is idle, it will set them to run right
@@ -238,33 +279,40 @@ package
 			rightPressed = true;
 			leftPressed = false;
 		}
+		
 		public function pressLeft():void
 		{
 			leftPressed = true;
 			rightPressed = false;
 		}
+		
 		public function pressUp():void
 		{
 			upPressed = true;
 			downPressed = false;
 		}
+		
 		public function pressDown():void
 		{
 			downPressed = true;
 			upPressed = true;
 		}
+		
 		public function pressCrouch():void
 		{
 			crouchPressed = true;
 		}
+		
 		public function pressJump():void
 		{
 			jumpPressed = true;
 		}
+		
 		public function pressSlash():void
 		{
 			slashPressed = true;
 		}
+		
 		public function pressStab():void
 		{
 			stabPressed = true;
