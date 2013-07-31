@@ -271,20 +271,20 @@ package
 					{
 					velocity.y = -400;
 					if (facingRight)
-						velocity.x += 50;
+						velocity.x += 100;
 					else
-						velocity.x -= 50;
+						velocity.x -= 100;
 					drag.x = 0;
 					}
 					break;
 				case MOVEMENT_HOP_FORWARD:
-						velocity.x = 100;
-					if (facingRight)
+						velocity.x = 1800;
+					if (!facingRight)
 						velocity.x *= -1;
 					break;
 				case MOVEMENT_HOP_BACK:
-						velocity.x = -100;
-					if (facingRight)
+						velocity.x = -1800;
+					if (!facingRight)
 						velocity.x *= -1;
 					break;
 			}
@@ -292,10 +292,47 @@ package
 		
 		private function transitionMovementStates(state:FighterState, target:FighterState):void
 		{
+			//finish old state
 			switch (state.ID)
 			{
 				case MOVEMENT_TURN: 
 					facingRight = !facingRight;
+					if (facingRight)
+						color = 0xffffff;
+					else
+						color = 0x999999;
+					break;
+				case MOVEMENT_SLIDE:
+					angle = 0;
+				case MOVEMENT_CROUCH:
+					scale.y = 1.0;
+					break;
+				case MOVEMENT_CROUCH_BACK:
+					angle = 0;
+					break;
+				case MOVEMENT_CROUCH_FORWARD:
+					angle = 0;
+					break;
+			}
+			//begin new state
+			//this is where we set the new animation, etc.
+			switch(target.ID)
+			{
+				case MOVEMENT_SLIDE:
+					angle = 90;
+					break;
+				case MOVEMENT_CROUCH:
+					scale.y = .8;
+					break;
+				case MOVEMENT_CROUCH_BACK:
+					angle = -20;
+					if (!facingRight)
+						angle *= -1;
+					break;
+				case MOVEMENT_CROUCH_FORWARD:
+					angle = 20;
+					if (!facingRight)
+						angle *= -1;
 					break;
 			}
 		}
