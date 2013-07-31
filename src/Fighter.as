@@ -108,7 +108,6 @@ package
 			if (movementState == sword.slideState)
 			{
 				drag.x = 100;
-				trace("sliding");
 			}
 			if (!isOnGround && (movementState == sword.jumpState || movementState == sword.jumpForwardState))
 			{
@@ -142,13 +141,6 @@ package
 						else
 							movementTarget = sword.turnState;
 					}
-					else if (movementState == sword.crouchState)
-					{
-						if (facingRight)
-							movementTarget = sword.crouchForwardState;
-						else
-							movementTarget = sword.crouchBackState;
-					}
 				}
 				if (leftPressed)
 				{
@@ -159,13 +151,6 @@ package
 						else
 							movementTarget = sword.turnState;
 					}
-					else if (movementState == sword.crouchState)
-					{
-						if (!facingRight)
-							movementTarget = sword.crouchForwardState;
-						else
-							movementTarget = sword.crouchBackState;
-					}
 				}
 				
 				if (crouchPressed)
@@ -173,7 +158,24 @@ package
 					if (movementState == sword.runState || movementState == sword.slideState)
 						movementTarget = sword.slideState;
 					else
-						movementTarget = sword.crouchState;
+					{
+						if (rightPressed)
+						{
+							if(facingRight)
+								movementTarget = sword.crouchForwardState;
+							else
+								movementTarget = sword.crouchBackState;
+						}
+						else if (leftPressed)
+						{
+							if (!facingRight)
+								movementTarget = sword.crouchForwardState;
+							else
+								movementTarget = sword.crouchBackState;
+						}
+						else
+							movementTarget = sword.crouchState;
+					}
 				}
 				
 				if (jumpPressed)
@@ -249,6 +251,7 @@ package
 					movementTarget = sword.movementIdleState;
 				}
 			}
+			trace(movementState.name);
 		}
 		
 		private function movementWindupToOngoing(state:FighterState):void
