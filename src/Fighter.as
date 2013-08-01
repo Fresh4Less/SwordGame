@@ -130,16 +130,16 @@ package
 		{
 			//set target state
 			//if in air force a jump state
-			/*
-			if (!isOnGround && (movementState != sword.jumpState || movementState != sword.jumpForwardState))
+			
+			if (!isOnGround && !(movementState == sword.jumpState || movementState == sword.jumpForwardState))
 			{
-				movementTarget = sword.jumpForwardState;
+				trace("A", movementState != sword.jumpForwardState);
+				movementTarget = sword.jumpState;
 				movementStateTimer.stop();
 				movementProcess = ONGOING;
 			}
-			*/
-			//else
-			if(true)
+			
+			else
 			{
 				if (movementProcess != WINDUP)
 				{
@@ -304,10 +304,10 @@ package
 			switch(state.ID)
 			{
 				case MOVEMENT_JUMP:
-					//if (isOnGround)
+					if (isOnGround)
 					{
 					velocity.y = -400;
-					velocity.x = 0;
+					//velocity.x = 0;
 					drag.x = 0;
 					}
 					break;
@@ -341,6 +341,14 @@ package
 			//finish old state
 			switch (state.ID)
 			{
+				//very temporary
+				case MOVEMENT_JUMP:
+				case MOVEMENT_JUMP_FORWARD:
+					if (facingRight)
+						color = 0xffffff;
+					else
+						color = 0x999999;
+					break;
 				case MOVEMENT_TURN: 
 					facingRight = !facingRight;
 					if (facingRight)
@@ -379,6 +387,12 @@ package
 					angle = 20;
 					if (!facingRight)
 						angle *= -1;
+					break;
+				case MOVEMENT_JUMP:
+					color = 0x000000;
+					break;
+				case MOVEMENT_JUMP_FORWARD:
+					color = 0x000000;
 					break;
 			}
 		}

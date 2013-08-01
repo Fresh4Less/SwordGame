@@ -16,7 +16,7 @@ package
 		{
 			FlxG.bgColor = 0xffffffff;
 			
-			player1 = new Player(100, 300);
+			player1 = new Player(100, 200);
 			player1.makeGraphic(32, 48, 0xffdd2222);
 			
 			platforms = new FlxGroup();
@@ -24,6 +24,10 @@ package
 			platform1.makeGraphic(640, 10, 0xff000000);
 			platform1.immovable = true;
 			platforms.add(platform1);
+			var platform2:FlxSprite = new FlxSprite(0, 400 - 68)
+			platform2.makeGraphic(200, 10, 0xff000000);
+			platform2.immovable = true;5
+			platforms.add(platform2);
 			
 			add(platforms);
 			add(player1);
