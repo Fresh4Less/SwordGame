@@ -204,12 +204,14 @@ package
 					//	movementTarget = sword.jumpForwardState;
 					//else if ( movementState == sword.jumpState)
 					//	movementTarget = sword.jumpState;
-					else if (movementState == sword.turnState)
-						movementTarget = sword.jumpForwardState;
+					//else if (movementState == sword.turnState)
+					//	movementTarget = sword.jumpForwardState;
 					else if (movementState == sword.crouchForwardState)
 						movementTarget = sword.hopForwardState;
 					else if (movementState == sword.crouchBackState)
 						movementTarget = sword.hopBackState;
+					else if (movementState == sword.hopForwardState || movementState == sword.hopBackState)
+						movementTarget = sword.jumpState;
 				}
 				//trace(movementTarget.name);
 			}
@@ -305,6 +307,7 @@ package
 					//if (isOnGround)
 					{
 					velocity.y = -400;
+					velocity.x = 0;
 					drag.x = 0;
 					}
 					break;
