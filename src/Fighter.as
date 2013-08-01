@@ -133,8 +133,7 @@ package
 			
 			if (!isOnGround && !(movementState == sword.jumpState || movementState == sword.jumpForwardState))
 			{
-				trace("A", movementState != sword.jumpForwardState);
-				movementTarget = sword.jumpState;
+				movementTarget = sword.jumpForwardState;
 				movementStateTimer.stop();
 				movementProcess = ONGOING;
 			}
@@ -213,20 +212,17 @@ package
 					else if (movementState == sword.hopForwardState || movementState == sword.hopBackState)
 						movementTarget = sword.jumpState;
 				}
-				//trace(movementTarget.name);
 			}
 			//advance to next state
 			if (movementStateTimer.finished)
 			{
 				if (movementProcess == WINDUP)
 				{
-					//trace("ongoing");
 					//directly transition into a jump in some cases
 					if (movementTarget == sword.jumpForwardState && movementState == sword.runState)
 					{
 						transitionMovementStates(movementState, movementTarget);
 						movementStateTimer.start(movementTarget.windupTime);
-						//trace(movementTarget.name);
 						movementState = movementTarget;
 						movementTarget = sword.movementIdleState;
 						movementProcess = WINDUP;
@@ -237,14 +233,9 @@ package
 					movementStateTimer.start(movementState.ongoingTime);
 					movementProcess = ONGOING;
 					}
-					//set idle, this way you can't queue actions in warmup unless it's a running jump
-					//trace("A", movementTarget.name);
-					//if (movementTarget != sword.jumpForwardState)
-					//	movementTarget = sword.movementIdleState;
 				}
 				else if (movementProcess == ONGOING)
 				{
-					trace(movementTarget.name);
 					if (movementState == movementTarget && (movementTarget == sword.movementIdleState ||
 															movementTarget == sword.runState ||
 															movementTarget == sword.crouchBackState ||
@@ -266,21 +257,11 @@ package
 							transitionMovementStates(movementState, movementTarget);
 							movementProcess = RECOVERY;
 							movementStateTimer.start(movementState.recoveryTime);
-							//trace("recovery");
 						}
 						else
 						{
-							/*
-							if (movementTarget == sword.jumpForwardState && !isOnGround)
-							{
-								movementTarget = sword.movementIdleState;
-								return;
-							}
-							*/
-							//trace("transition", movementState.name, movementTarget.name);
 							transitionMovementStates(movementState, movementTarget);
 							movementStateTimer.start(movementTarget.windupTime);
-							//trace(movementTarget.name);
 							movementState = movementTarget;
 							movementTarget = sword.movementIdleState;
 							movementProcess = WINDUP;
@@ -296,7 +277,6 @@ package
 					movementTarget = sword.movementIdleState;
 				}
 			}
-			//trace(movementState.name);
 		}
 		
 		private function movementWindupToOngoing(state:FighterState):void
