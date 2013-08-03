@@ -4,6 +4,7 @@ package
 	 * ...
 	 * @author Elliot Hatch
 	 */
+	import adobe.utils.CustomActions;
 	import org.flixel.*;
 	import org.flixel.plugin.photonstorm.*;
 	public class PlayState extends FlxState 
@@ -11,6 +12,8 @@ package
 		
 		private var platforms:FlxGroup;
 		private var player1:Player;
+		//private var bloodEmitter:BloodEmitter;
+		private var killParticles:KillParticles;
 		
 		override public function create():void
 		{
@@ -31,11 +34,22 @@ package
 			
 			add(platforms);
 			add(player1);
+			//bloodEmitter = new BloodEmitter(320, 240);
+			//add(bloodEmitter);
+			//bloodEmitter.start(false, 2, .005);
+			killParticles = new KillParticles(100, 300);
+			add(killParticles);
 		}
 		
 		override public function update():void
 		{
+			if (FlxG.keys.justPressed("A"))
+				killParticles.start(player1.velocity, 0);
+			
 			super.update();
+			killParticles.x = player1.x + 16;
+			killParticles.y = player1.y + 24;
+			FlxG.collide(killParticles, platforms);
 			if (FlxG.collide(player1, platforms))
 			{
 				//TODO: change this so only a "foot" collider will set this true
