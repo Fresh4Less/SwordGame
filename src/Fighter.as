@@ -58,8 +58,15 @@ package
 		private var facingRight:Boolean;
 		
 		public var isOnGround:Boolean = false;
+		public var isAgainstWall:Boolean = false;
 		
-		public function Fighter(X:Number, Y:Number)
+		public var fighterType:int;
+		public var footCollider:FlxSprite;
+		public var forwardCollider:FlxSprite;
+		public var footColliderOffset:FlxPoint;
+		public var forwardColliderOffset:FlxPoint;
+		
+		public function Fighter(X:Number, Y:Number, type:int = 0)
 		{
 			super(X, Y);
 			maxVelocity.x = 200;
@@ -77,6 +84,17 @@ package
 			attackTarget = sword.attackIdleState;
 			movementProcess = ONGOING;
 			facingRight = true;
+			fighterType = type;
+			if (type == 0)
+			{
+				makeGraphic(32, 48, 0xffdd2222);
+				footColliderOffset = new FlxPoint(0, 48 - 5);
+				footCollider = new FlxSprite(X + footColliderOffset.x, Y + footColliderOffset.y);
+				footCollider.makeGraphic(32, 5, 0xff00ffff);
+				forwardColliderOffset = new FlxPoint(0, 0); //LEFT
+				forwardCollider = new FlxSprite(X + forwardColliderOffset.x, Y + forwardColliderOffset.y);
+				forwardCollider.makeGraphic(5, 40, 0xff00ffff);
+			}
 		}
 		
 		override public function update():void
@@ -123,7 +141,16 @@ package
 			{
 				drag.x = 0;
 			}
+			
 			super.update();
+		}
+		
+		public function updateColliders():void
+		{
+			footCollider.x = this.x + footColliderOffset.x;
+			footCollider.y = this.y + footColliderOffset.y;
+			forwardCollider.x = this.x + forwardColliderOffset.x;
+			forwardCollider.y = this.y + forwardColliderOffset.y;
 		}
 		
 		private function updateStates():void

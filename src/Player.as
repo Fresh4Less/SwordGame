@@ -8,9 +8,9 @@ package
 	public class Player extends Fighter
 	{
 		
-		public function Player(X:int, Y:int)
+		public function Player(X:int, Y:int, type:int = 0)
 		{
-			super(X, Y);
+			super(X, Y, type);
 		}
 		
 		override public function update():void
