@@ -5,14 +5,14 @@ package
 	 * @author Elliot Hatch
 	 */
 	import org.flixel.*
-	[SWF(width = "640", height = "480", backgroundColor = "#00000000")]
+	[SWF(width = "800", height = "600", backgroundColor = "#00000000")]
 	
 	public class SwordGame extends FlxGame
 	{
 	
 		public function SwordGame() 
 		{
-			super(640, 480, PlayState);
+			super(800, 600, PlayState);
 		}
 		
 	}
