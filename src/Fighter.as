@@ -32,9 +32,15 @@ package
 		public static const MOVEMENT_JUMP_FORWARD:int = 10;
 		
 		//attack states
-		public static const ATTACK_IDLE:int = 0;
-		public static const ATTACK_STAB:int = 1;
-		public static const ATTACK_SLASH:int = 2;
+		public static const ATTACK_IDLE:int = 11;
+		public static const ATTACK_STAB_FORWARD:int = 12;
+		public static const ATTACK_SLASH_FORWARD:int = 13;
+		public static const ATTACK_STAB_UP:int = 14;
+		public static const ATTACK_SLASH_UP:int = 15;
+		public static const ATTACK_STAB_FORWARD_RUNNING:int = 16;
+		public static const ATTACK_SLASH_FORWARD_RUNNING:int = 17;
+		public static const ATTACK_STAB_UP_RUNNING:int = 18;
+		public static const ATTACK_SLASH_UP_RUNNING:int = 19;
 		
 		//process states
 		public static const WINDUP:int = 0;
@@ -123,6 +129,14 @@ package
 			{
 				drag.x = 0;
 			}
+			if (movementState == sword.slashForwardRunningState || movementState == sword.slashUpRunningState)
+			{
+				drag.x = 0;
+			}
+			if (movementState == sword.stabForwardRunningState || movementState == sword.stabUpRunningState)
+			{
+				
+			}
 			super.update();
 		}
 		
@@ -190,6 +204,42 @@ package
 							}
 							else
 								movementTarget = sword.crouchState;
+						}
+					}
+					if (stabPressed)
+					{
+						if (movementState == sword.movementIdleState || movementState == sword.crouchBackState || 
+						    movementState == sword.crouchState || movementState == sword.crouchForwardState)
+						{
+							if (upPressed)
+								movementTarget = sword.stabUpState;
+							else
+								movementTarget = sword.stabForwardState;
+						}
+						else if (movementState == sword.runState)
+						{
+							if (upPressed)
+								movementTarget = sword.stabUpRunningState;
+							else 
+							movementTarget = sword.stabForwardRunningState;
+						}
+					}
+					if (slashPressed)
+					{
+						if (movementState == sword.movementIdleState || movementState == sword.crouchBackState || 
+						    movementState == sword.crouchState || movementState == sword.crouchForwardState)
+						{
+							if (upPressed)
+								movementTarget = sword.slashUpState;
+							else
+								movementTarget = sword.slashForwardState;
+						}
+						else if (movementState == sword.runState)
+						{
+							if (upPressed)
+								movementTarget = sword.slashUpRunningState;
+							else 
+							movementTarget = sword.slashForwardRunningState;
 						}
 					}
 				}
@@ -335,6 +385,7 @@ package
 						color = 0xffffff;
 					else
 						color = 0x999999;
+					alpha = 1.0;
 					break;
 				case MOVEMENT_SLIDE:
 					angle = 0;
@@ -352,6 +403,9 @@ package
 			//this is where we set the new animation, etc.
 			switch(target.ID)
 			{
+				case MOVEMENT_TURN:
+					alpha = 0.5;
+					break;
 				case MOVEMENT_SLIDE:
 					angle = 90;
 					break;

@@ -58,8 +58,15 @@ package
 		public var hopBackState:FighterState;
 		public var slideState:FighterState;
 		public var turnState:FighterState;
-		public var stabState:FighterState;
-		public var slashState:FighterState;
+		
+		public var stabForwardState:FighterState;
+		public var slashForwardState:FighterState;
+		public var stabUpState:FighterState;
+		public var slashUpState:FighterState;
+		public var stabForwardRunningState:FighterState;
+		public var slashForwardRunningState:FighterState;
+		public var stabUpRunningState:FighterState;
+		public var slashUpRunningState:FighterState;
 		
 		public function FighterSword() 
 		{
@@ -115,8 +122,16 @@ package
 			hopBackState = new FighterState(Fighter.MOVEMENT_HOP_BACK, "hopBack", hopBackWindupTime, hopBackOngoingTime, hopBackRecoveryTime);
 			slideState = new FighterState(Fighter.MOVEMENT_SLIDE, "slide", slideWindupTime, slideOngoingTime, slideRecoveryTime);
 			turnState = new FighterState(Fighter.MOVEMENT_TURN, "turn", turnWindupTime, turnOngoingTime, turnRecoveryTime);
-			stabState = new FighterState(Fighter.ATTACK_STAB, "stab", stabWindupTime, stabOngoingTime, stabRecoveryTime);
-			slashState = new FighterState(Fighter.ATTACK_SLASH, "slash", slashWindupTime, slashOngoingTime, slashRecoveryTime);
+			
+			stabForwardState = new FighterState(Fighter.ATTACK_STAB_FORWARD, "stabForward", stabWindupTime, stabOngoingTime, stabRecoveryTime);
+			slashForwardState = new FighterState(Fighter.ATTACK_SLASH_FORWARD, "slashForward", slashWindupTime, slashOngoingTime, slashRecoveryTime);
+			stabUpState = new FighterState(Fighter.ATTACK_STAB_UP, "stabUp", stabWindupTime, stabOngoingTime, stabRecoveryTime);
+			slashUpState = new FighterState(Fighter.ATTACK_SLASH_UP, "slashUp", slashWindupTime, slashOngoingTime, slashRecoveryTime);
+			stabForwardRunningState = new FighterState(Fighter.ATTACK_STAB_FORWARD_RUNNING, "stabForwardRunning", stabWindupTime, stabOngoingTime, stabRecoveryTime);
+			slashForwardRunningState = new FighterState(Fighter.ATTACK_SLASH_FORWARD_RUNNING, "slashForwardRunning", slashWindupTime, slashOngoingTime, slashRecoveryTime);
+			stabUpRunningState = new FighterState(Fighter.ATTACK_STAB_UP_RUNNING, "stabUpRunning", stabWindupTime, stabOngoingTime, stabRecoveryTime);
+			slashUpRunningState = new FighterState(Fighter.ATTACK_SLASH_UP_RUNNING, "slashUpRunning", slashWindupTime, slashOngoingTime, slashRecoveryTime);
+			
 		}
 		
 	}
