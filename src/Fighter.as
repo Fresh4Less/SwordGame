@@ -158,6 +158,10 @@ package
 			
 			else
 			{
+				if (!isOnGround && (movementState == sword.jumpState || movementState == sword.jumpForwardState))
+				{
+					
+				}
 				if (movementTargets.length == 0)
 				{
 					if (movementProcess != WINDUP)
@@ -187,11 +191,16 @@ package
 						
 						if (crouchPressed)
 						{
-							if (movementState == sword.runState || movementState == sword.slideState || 
-																   movementState == sword.jumpForwardState)
+							if (movementState == sword.runState)
 								{
 									movementTargets.push(sword.slideState);
 								}
+							else if ( movementState == sword.slideState || movementState == sword.jumpForwardState)
+							{
+								//DON"T COMBO FROM A CONTINUED SLIDE
+								movementTargets.length = 0;
+								movementTargets.push(sword.slideState);
+							}
 							else
 							{
 								if (rightPressed)
@@ -307,7 +316,7 @@ package
 															movementTarget == sword.crouchBackState ||
 															movementTarget == sword.crouchState ||
 															movementTarget == sword.crouchForwardState ||
-															movementTarget == sword.slideState))
+															movementTarget == sword.slideState ))
 					{
 						//ignore the repeated action
 						if(movementTargets.length != 0)
@@ -326,13 +335,30 @@ package
 					}
 					else if (!isOnGround && (movementState == sword.jumpState || movementState == sword.jumpForwardState))
 					{
-						//movementTarget = movementState;
+						//effectively disables queuing while in air
+						//otherwise you only queue right when you leave the ground
+						movementTargets.length = 0;
+						//movementTargets.push(movementState);
 					}
 					else
 					{
-						movementOngoingToRecovery(movementState);
-						movementProcess = RECOVERY;
-						movementStateTimer.start(movementState.recoveryTime);
+						if (movementState == sword.jumpForwardState && 
+						   (movementTarget == sword.slideState || movementTarget == sword.runState))
+						{
+							//special cases where you land from jump, but don't have to recover
+							movementTarget = movementTargets.shift();
+							transitionMovementStates(movementState, movementTarget);
+							movementState = movementTarget;
+							movementProcess = WINDUP;
+							movementStateTimer.start(movementState.windupTime);
+						}
+						else
+						{
+							movementOngoingToRecovery(movementState);
+							movementProcess = RECOVERY;
+							movementStateTimer.start(movementState.recoveryTime);
+							trace("RECOVERY");
+						}
 					}
 				}
 				else if (movementProcess == RECOVERY)
