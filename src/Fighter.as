@@ -164,62 +164,59 @@ package
 				}
 				if (movementTargets.length == 0)
 				{
-					if (movementProcess != WINDUP)
+					if (rightPressed)
 					{
-						if (rightPressed)
+						if (movementState == sword.movementIdleState || movementState == sword.runState || 
+							movementState == sword.slideState || movementState == sword.jumpForwardState)
 						{
-							if (movementState == sword.movementIdleState || movementState == sword.runState || 
-								movementState == sword.slideState || movementState == sword.jumpForwardState)
-							{
-								if (facingRight)
-									movementTargets.push(sword.runState);
-								else
-									movementTargets.push(sword.turnState);
-							}
+							if (facingRight)
+								movementTargets.push(sword.runState);
+							else
+								movementTargets.push(sword.turnState);
 						}
-						if (leftPressed)
+					}
+					if (leftPressed)
+					{
+						if (movementState == sword.movementIdleState || movementState == sword.runState ||
+							movementState == sword.slideState || movementState == sword.jumpForwardState)
 						{
-							if (movementState == sword.movementIdleState || movementState == sword.runState ||
-								movementState == sword.slideState || movementState == sword.jumpForwardState)
-							{
-								if (!facingRight)
-									movementTargets.push(sword.runState);
-								else
-									movementTargets.push(sword.turnState);
-							}
+							if (!facingRight)
+								movementTargets.push(sword.runState);
+							else
+								movementTargets.push(sword.turnState);
 						}
-						
-						if (crouchPressed)
-						{
-							if (movementState == sword.runState)
-								{
-									movementTargets.push(sword.slideState);
-								}
-							else if ( movementState == sword.slideState || movementState == sword.jumpForwardState)
+					}
+					
+					if (crouchPressed)
+					{
+						if (movementState == sword.runState)
 							{
-								//DON"T COMBO FROM A CONTINUED SLIDE
-								movementTargets.length = 0;
 								movementTargets.push(sword.slideState);
 							}
-							else
+						else if ( movementState == sword.slideState || movementState == sword.jumpForwardState)
+						{
+							//DON"T COMBO FROM A CONTINUED SLIDE
+							movementTargets.length = 0;
+							movementTargets.push(sword.slideState);
+						}
+						else
+						{
+							if (rightPressed)
 							{
-								if (rightPressed)
-								{
-									if(facingRight)
-										movementTargets.push(sword.crouchForwardState);
-									else
-										movementTargets.push(sword.crouchBackState);
-								}
-								else if (leftPressed)
-								{
-									if (!facingRight)
-										movementTargets.push(sword.crouchForwardState);
-									else
-										movementTargets.push(sword.crouchBackState);
-								}
+								if(facingRight)
+									movementTargets.push(sword.crouchForwardState);
 								else
-									movementTargets.push(sword.crouchState);
+									movementTargets.push(sword.crouchBackState);
 							}
+							else if (leftPressed)
+							{
+								if (!facingRight)
+									movementTargets.push(sword.crouchForwardState);
+								else
+									movementTargets.push(sword.crouchBackState);
+							}
+							else
+								movementTargets.push(sword.crouchState);
 						}
 					}
 				}
@@ -307,6 +304,7 @@ package
 				}
 				else if (movementProcess == ONGOING)
 				{
+					trace(movementTargets.length);
 					var movementTarget:FighterState = sword.movementIdleState;
 					if (movementTargets.length != 0)
 						movementTarget = movementTargets[0];
@@ -357,7 +355,6 @@ package
 							movementOngoingToRecovery(movementState);
 							movementProcess = RECOVERY;
 							movementStateTimer.start(movementState.recoveryTime);
-							trace("RECOVERY");
 						}
 					}
 				}
