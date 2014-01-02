@@ -17,7 +17,7 @@ package
 			FlxG.bgColor = 0xffffffff;
 			
 			player1 = new Player(100, 200);
-			player1.makeGraphic(32, 48, 0xffdd2222);
+			player1.makeGraphic(32, 48, 0xffffffff);
 			
 			platforms = new FlxGroup();
 			var platform1:FlxSprite = new FlxSprite(0, 400);

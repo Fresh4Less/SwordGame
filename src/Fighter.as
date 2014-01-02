@@ -281,9 +281,14 @@ package
 							//since running constantly generates a runstate, if we want to do a running jump we first 
 							//check for a run state, then check if there is a following jump state so we can skip the run recovery
 							//here, the first run state gets us up to full speed, the second gets eaten by state machine
-							movementTargets.push(sword.runState);
-							movementTargets.push(sword.runState);
-							movementTargets.push(sword.jumpForwardState);
+							if ((rightPressed && !facingRight) || (leftPressed && facingRight))
+							{
+								movementTargets.push(sword.runState);
+								movementTargets.push(sword.runState);
+								movementTargets.push(sword.jumpForwardState);
+							}
+							else
+								movementTargets.push(sword.jumpState);
 						}
 						else if (movementState == sword.crouchForwardState)
 							movementTargets.push(sword.hopForwardState);
@@ -304,7 +309,7 @@ package
 				}
 				else if (movementProcess == ONGOING)
 				{
-					trace(movementTargets.length);
+					//trace(movementTargets.length);
 					var movementTarget:FighterState = sword.movementIdleState;
 					if (movementTargets.length != 0)
 						movementTarget = movementTargets[0];
@@ -418,16 +423,16 @@ package
 				case MOVEMENT_JUMP:
 				case MOVEMENT_JUMP_FORWARD:
 					if (facingRight)
-						color = 0xffffff;
+						color = 0xff0000;
 					else
-						color = 0x999999;
+						color = 0x990000;
 					break;
 				case MOVEMENT_TURN: 
 					facingRight = !facingRight;
 					if (facingRight)
-						color = 0xffffff;
+						color = 0xff0000;
 					else
-						color = 0x999999;
+						color = 0x990000;
 					alpha = 1.0;
 					break;
 				case MOVEMENT_SLIDE:
@@ -469,7 +474,7 @@ package
 					color = 0x000000;
 					break;
 				case MOVEMENT_JUMP_FORWARD:
-					color = 0x000000;
+					color = 0xaaaaaa;
 					break;
 			}
 		}
