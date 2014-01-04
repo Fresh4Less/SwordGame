@@ -31,6 +31,7 @@ package
 		public static const MOVEMENT_CROUCH_BACK:int = 8;
 		public static const MOVEMENT_CROUCH_FORWARD:int = 9;
 		public static const MOVEMENT_JUMP_FORWARD:int = 10;
+		public static const MOVEMENT_WALLSLIDE:int = 11;
 		
 		//attack states
 		public static const ATTACK_IDLE:int = 11;
@@ -69,6 +70,8 @@ package
 		public var colliderFront:FlxSprite;
 		public var colliderBack:FlxSprite;
 		public var colliderTop:FlxSprite;
+		public var colliderWallLeft:FlxSprite; //doesn't push player out of walls, but detects that they're there for the state machine
+		public var colliderWallRight:FlxSprite;
 		
 		//rect(offsetx, offsety, width, height
 		//private var colliderBottomRect:FlxRect = new FlxRect(6, 32, 20, 16);
@@ -77,11 +80,15 @@ package
 		//private var colliderTopRect:FlxRect = new FlxRect(6, 0, 20, 16);
 		
 		public var colliderRect:FlxRect = new FlxRect(-6, -32, 32, 48);
-		public var colliderFrontRect:FlxRect = new FlxRect(10, -16, 16, 16);
-		public var colliderBackRect:FlxRect = new FlxRect(-6, -16, 16, 16);
+		public var colliderFrontRect:FlxRect = new FlxRect(10, -16, 14, 16);
+		public var colliderBackRect:FlxRect = new FlxRect(-4, -16, 14, 16);
 		public var colliderTopRect:FlxRect = new FlxRect(0, -32, 20, 16);
+		public var colliderWallLeftRect:FlxRect = new FlxRect( -6, -16, 16, 16);
+		public var colliderWallRightRect:FlxRect = new FlxRect(10, -16, 16, 16);
 				
 		public var isOnGround:Boolean = false;
+		public var isOnWallRight:Boolean = false;
+		public var isOnWallLeft:Boolean = false;
 		
 		//drawing
 		private var mainSprite:FlxSprite;
@@ -119,6 +126,11 @@ package
 			colliderBack.makeGraphic(colliderBackRect.width, colliderBackRect.height, 0xffffaaaa);
 			colliderTop = new FlxSprite(X + colliderTopRect.x, Y + colliderTopRect.y);
 			colliderTop.makeGraphic(colliderTopRect.width, colliderTopRect.height, 0xffffffaa);
+			colliderWallLeft = new FlxSprite(X + colliderWallLeftRect.x, Y + colliderWallLeftRect.y);
+			colliderWallLeft.makeGraphic(colliderWallLeftRect.width, colliderWallLeftRect.height, 0xff00aaaa);
+			colliderWallRight = new FlxSprite(X + colliderWallRightRect.x, Y + colliderWallRightRect.y);
+			colliderWallRight.makeGraphic(colliderWallRightRect.width, colliderWallRightRect.height, 0xffaa00aa);
+			
 			
 			mainSprite = new FlxSprite(X, Y);
 			mainSprite.makeGraphic(32, 48, 0xffffffff);
@@ -128,6 +140,8 @@ package
 		override public function draw():void
 		{
 			mainSprite.draw();
+			colliderWallLeft.draw();
+			colliderWallRight.draw();
 			//collider.draw();
 			colliderFront.draw();
 			colliderBack.draw();
@@ -137,15 +151,15 @@ package
 		}
 		
 		override public function update():void
-		{			
-			//acceleration.x = 0;
-			//acceleration.y = 900;
+		{
 			updateStates();
 			resetInput();
 			acceleration.x = 0;
 			acceleration.y = 900;
 			drag.x = maxVelocity.x * 4;
 			isOnGround = false;
+			isOnWallRight = false;
+			isOnWallLeft = false;
 			
 			if (movementState == sword.runState)
 			{
@@ -198,28 +212,7 @@ package
 		{			
 			super.postUpdate();
 			
-			
-			//update colliders
-			mainSprite.x = this.x;
-			mainSprite.y = this.y;
-			collider.x = this.x + colliderRect.x;
-			collider.y = this.y + colliderRect.y;
-			if (facingRight)
-			{
-				colliderFront.x = this.x + colliderFrontRect.x;
-				colliderFront.y = this.y + colliderFrontRect.y;
-				colliderBack.x = this.x + colliderBackRect.x;
-				colliderBack.y = this.y + colliderBackRect.y;
-			}
-			else
-			{
-				colliderFront.x = this.x + colliderBackRect.x;
-				colliderFront.y = this.y + colliderBackRect.y;
-				colliderBack.x = this.x + colliderFrontRect.x;
-				colliderBack.y = this.y + colliderFrontRect.y;
-			}
-			colliderTop.x = this.x + colliderTopRect.x;
-			colliderTop.y = this.y + colliderTopRect.y;
+			setPositionAndColliders(this.x, this.y);
 		}
 		
 		private function updateStates():void
@@ -227,18 +220,33 @@ package
 			//set target state
 			//if in air force a jump state
 			
-			if (!isOnGround && !(movementState == sword.jumpState || movementState == sword.jumpForwardState))
+			if (!isOnGround && movementState != sword.wallSlideState)
 			{
-				//movementTarget= sword.jumpForwardState;
-				movementTargets.length = 0;
-				movementTargets.push(sword.jumpForwardState);
-				movementStateTimer.stop();
-				movementProcess = RECOVERY;
+				//first try to force a wallSlide
+				if (isOnWallLeft || isOnWallRight)
+				{
+					movementTargets.length = 0;
+					movementTargets.push(sword.wallSlideState);
+					movementStateTimer.stop();
+					movementProcess = RECOVERY;
+				}
+				else if(!(movementState == sword.jumpState || movementState == sword.jumpForwardState))
+				{
+					//movementTarget= sword.jumpForwardState;
+					movementTargets.length = 0;
+					movementTargets.push(sword.jumpForwardState);
+					movementStateTimer.stop();
+					movementProcess = RECOVERY;
+				}
 			}
 			
 			else
 			{
 				if (!isOnGround && (movementState == sword.jumpState || movementState == sword.jumpForwardState))
+				{
+					
+				}
+				if (!isOnGround && movementState == sword.wallSlideState)
 				{
 					
 				}
@@ -376,6 +384,11 @@ package
 							movementTargets.push(sword.hopBackState);
 						else if (movementState == sword.hopForwardState || movementState == sword.hopBackState)
 							movementTargets.push(sword.jumpState);
+						else if ( movementState ==  sword.wallSlideState)
+						{
+							facingRight = isOnWallLeft;
+							movementTargets.push(sword.jumpForwardState);
+						}
 					}
 			}
 			//advance to next state
@@ -422,6 +435,26 @@ package
 						//otherwise you only queue right when you leave the ground
 						movementTargets.length = 0;
 						//movementTargets.push(movementState);
+					}
+					else if (!isOnGround && movementState == sword.wallSlideState)
+					{
+						//if in a wallslide in the air, only allow a walljump
+						if (movementTarget == sword.jumpForwardState)
+						{
+							trace(facingRight);
+							//skip directly to ongoing
+							//TEMPORARY WORKAROUND - set "isOnGround" to true temporarily so the jump works
+							isOnGround = true;
+							movementTarget = movementTargets.shift();
+							transitionMovementStates(movementState, movementTarget);
+							movementState = movementTarget;
+							//movementProcess = WINDUP;
+							//movementStateTimer.start(movementState.windupTime);
+							
+							movementWindupToOngoing(movementState);
+							movementStateTimer.start(movementState.ongoingTime);
+							movementProcess = ONGOING;
+						}
 					}
 					else
 					{
@@ -500,13 +533,7 @@ package
 			switch (state.ID)
 			{
 				//very temporary
-				case MOVEMENT_JUMP:
-				case MOVEMENT_JUMP_FORWARD:
-					if (facingRight)
-						mainSprite.color = 0xff0000;
-					else
-						mainSprite.color = 0x990000;
-					break;
+				
 				case MOVEMENT_TURN: 
 					facingRight = !facingRight;
 					if (facingRight)
@@ -531,6 +558,13 @@ package
 			//this is where we set the new animation, etc.
 			switch(target.ID)
 			{
+				case MOVEMENT_IDLE:
+				case MOVEMENT_RUN:
+					if (facingRight)
+						mainSprite.color = 0xff0000;
+					else
+						mainSprite.color = 0x990000;
+					break;
 				case MOVEMENT_TURN:
 					mainSprite.alpha = 0.5;
 					break;
@@ -538,6 +572,10 @@ package
 					mainSprite.angle = 90;
 					break;
 				case MOVEMENT_CROUCH:
+					if (facingRight)
+						mainSprite.color = 0xff0000;
+					else
+						mainSprite.color = 0x990000;
 					mainSprite.scale.y = .8;
 					break;
 				case MOVEMENT_CROUCH_BACK:
@@ -555,6 +593,9 @@ package
 					break;
 				case MOVEMENT_JUMP_FORWARD:
 					mainSprite.color = 0xaaaaaa;
+					break;
+				case MOVEMENT_WALLSLIDE:
+					mainSprite.color = 0x00ee00;
 					break;
 			}
 		}
@@ -611,7 +652,14 @@ package
 				}
 				fighter.velocity.x = 0;
 			}
-			
+			if (object2.overlaps(fighter.colliderWallLeft))
+			{
+				fighter.isOnWallLeft = true;
+			}
+			if (object2.overlaps(fighter.colliderWallRight))
+			{
+				fighter.isOnWallRight = true;
+			}
 			
 			return collided;
 		}
@@ -652,6 +700,11 @@ package
 			}
 			colliderTop.x = this.x + colliderTopRect.x;
 			colliderTop.y = this.y + colliderTopRect.y;
+			colliderWallLeft.x = this.x + colliderWallLeftRect.x;
+			colliderWallLeft.y = this.y + colliderWallLeftRect.y;
+			colliderWallRight.x = this.x + colliderWallRightRect.x;
+			colliderWallRight.y = this.y + colliderWallRightRect.y;
+			
 		}
 		
 		//raw input interface, called based on keyboard input, etc.

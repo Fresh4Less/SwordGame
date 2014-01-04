@@ -30,6 +30,9 @@ package
 		public var hopBackWindupTime:Number;
 		public var hopBackOngoingTime:Number;
 		public var hopBackRecoveryTime:Number;
+		public var wallSlideWindupTime:Number;
+		public var wallSlideOngoingTime:Number;
+		public var wallSlideRecoveryTime:Number;
 		public var slideWindupTime:Number;
 		public var slideOngoingTime:Number;
 		public var slideRecoveryTime:Number;
@@ -58,6 +61,8 @@ package
 		public var hopBackState:FighterState;
 		public var slideState:FighterState;
 		public var turnState:FighterState;
+		public var wallSlideState:FighterState;
+		
 		
 		public var stabForwardState:FighterState;
 		public var slashForwardState:FighterState;
@@ -94,6 +99,9 @@ package
 			hopBackWindupTime = 0.1;
 			hopBackOngoingTime = 0.1;
 			hopBackRecoveryTime = 0.1;
+			wallSlideWindupTime = 0.01
+			wallSlideOngoingTime = 0.01;
+			wallSlideRecoveryTime = 0.01;
 			slideWindupTime = 0.1;
 			slideOngoingTime = 0.1;
 			slideRecoveryTime = 0.1;
@@ -122,6 +130,7 @@ package
 			hopBackState = new FighterState(Fighter.MOVEMENT_HOP_BACK, "hopBack", hopBackWindupTime, hopBackOngoingTime, hopBackRecoveryTime);
 			slideState = new FighterState(Fighter.MOVEMENT_SLIDE, "slide", slideWindupTime, slideOngoingTime, slideRecoveryTime);
 			turnState = new FighterState(Fighter.MOVEMENT_TURN, "turn", turnWindupTime, turnOngoingTime, turnRecoveryTime);
+			wallSlideState = new FighterState(Fighter.MOVEMENT_WALLSLIDE, "wallSlide", wallSlideWindupTime, wallSlideOngoingTime, wallSlideRecoveryTime);
 			
 			stabForwardState = new FighterState(Fighter.ATTACK_STAB_FORWARD, "stabForward", stabWindupTime, stabOngoingTime, stabRecoveryTime);
 			slashForwardState = new FighterState(Fighter.ATTACK_SLASH_FORWARD, "slashForward", slashWindupTime, slashOngoingTime, slashRecoveryTime);
