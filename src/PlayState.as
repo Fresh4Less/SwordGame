@@ -30,6 +30,14 @@ package
 			platform2.makeGraphic(200, 10, 0xff000000);
 			platform2.immovable = true;
 			platforms.add(platform2);
+			var platform3:FlxSprite = new FlxSprite(640, 200)
+			platform3.makeGraphic(10, 200, 0xff000000);
+			platform3.immovable = true;
+			platforms.add(platform3);
+			var platform4:FlxSprite = new FlxSprite(0, 200)
+			platform4.makeGraphic(10, 200, 0xff000000);
+			platform4.immovable = true;
+			platforms.add(platform4);
 			
 			add(platforms);
 			add(player1);
@@ -52,20 +60,6 @@ package
 			if (FlxG.overlap(player1.collider, platforms, null, Fighter.handleCollision))
 			{
 			}
-			else
-			{
-				player1.isOnGround = false;
-			}
-			//trace(player1.isOnGround);
-			/*
-			if (FlxG.collide(player1, platforms))
-			{
-				//TODO: change this so only a "foot" collider will set this true
-				player1.isOnGround = true;
-			}
-			else
-				player1.isOnGround = false;
-				*/
 		}
 	}
 

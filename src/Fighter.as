@@ -62,7 +62,7 @@ package
 		private var movementStateTimer:FlxTimer;
 		
 		private var sword:FighterSword;
-		private var facingRight:Boolean;
+		public var facingRight:Boolean;
 		
 		//collision variables (public because collision handler is static and I don't know how to make friend functions
 		public var collider:ChildCollider;
@@ -76,10 +76,10 @@ package
 		//private var colliderBackRect:FlxRect = new FlxRect(0, 16, 16, 16);
 		//private var colliderTopRect:FlxRect = new FlxRect(6, 0, 20, 16);
 		
-		private var colliderRect:FlxRect = new FlxRect(-6, -32, 32, 48);
-		private var colliderFrontRect:FlxRect = new FlxRect(10, -16, 16, 16);
-		private var colliderBackRect:FlxRect = new FlxRect(-6, -16, 16, 16);
-		private var colliderTopRect:FlxRect = new FlxRect(0, -32, 20, 16);
+		public var colliderRect:FlxRect = new FlxRect(-6, -32, 32, 48);
+		public var colliderFrontRect:FlxRect = new FlxRect(10, -16, 16, 16);
+		public var colliderBackRect:FlxRect = new FlxRect(-6, -16, 16, 16);
+		public var colliderTopRect:FlxRect = new FlxRect(0, -32, 20, 16);
 				
 		public var isOnGround:Boolean = false;
 		
@@ -145,6 +145,8 @@ package
 			acceleration.x = 0;
 			acceleration.y = 900;
 			drag.x = maxVelocity.x * 4;
+			isOnGround = false;
+			
 			if (movementState == sword.runState)
 			{
 				if (movementProcess == WINDUP)
@@ -188,21 +190,34 @@ package
 			{
 				
 			}
+			
 			super.update();
+			
 		}
 		override public function postUpdate():void
-		{
+		{			
 			super.postUpdate();
+			
 			
 			//update colliders
 			mainSprite.x = this.x;
 			mainSprite.y = this.y;
 			collider.x = this.x + colliderRect.x;
 			collider.y = this.y + colliderRect.y;
-			colliderFront.x = this.x + colliderFrontRect.x;
-			colliderFront.y = this.y + colliderFrontRect.y;
-			colliderBack.x = this.x + colliderBackRect.x;
-			colliderBack.y = this.y + colliderBackRect.y;
+			if (facingRight)
+			{
+				colliderFront.x = this.x + colliderFrontRect.x;
+				colliderFront.y = this.y + colliderFrontRect.y;
+				colliderBack.x = this.x + colliderBackRect.x;
+				colliderBack.y = this.y + colliderBackRect.y;
+			}
+			else
+			{
+				colliderFront.x = this.x + colliderBackRect.x;
+				colliderFront.y = this.y + colliderBackRect.y;
+				colliderBack.x = this.x + colliderFrontRect.x;
+				colliderBack.y = this.y + colliderFrontRect.y;
+			}
 			colliderTop.x = this.x + colliderTopRect.x;
 			colliderTop.y = this.y + colliderTopRect.y;
 		}
@@ -558,59 +573,44 @@ package
 			if (object2.overlaps(fighter))
 			{
 				FlxObject.separateY(fighter, object2);
+				fighter.setPositionAndColliders(fighter.x, fighter.y);
+				
 				fighter.isOnGround = true;
 				collided = true;
 			}
-			else
-			{
-				trace(fighter.x);
-				fighter.isOnGround = false;
-			}
-			/*
-			if (object2.overlaps(fighter.colliderBottom))
-			{
-				fighter.isOnGround = true;
-				
-				FlxObject.separateY(fighter.colliderBottom, object2);
-				var offsetY:Number = (fighter.colliderBottom.y + fighter.colliderBottomRect.y) - fighter.y;
-				fighter.setPositionAndColliders(fighter.x, fighter.y - offsetY);
-				fighter.velocity.y = fighter.colliderBottom.velocity.y;
-				//+ colliderBottomRect.y;
-				
-				var overlap:Number = fighter.y + fighter.height - object2.y;
-				if (overlap != 0)
-				{
-				fighter.setPositionAndColliders(fighter.x, fighter.y - overlap );
-				//fighter.velocity.x = object2.velocity.x;
-				fighter.velocity.y = object2.velocity.y;
-				}
-			}
-			else
-			{
-				fighter.isOnGround = false;
-			}
-			*/
-			/*
+			
 			if (object2.overlaps(fighter.colliderTop))
 			{
-				overlap = fighter.y + fighter.height - object2.y;
-				fighter.setPositionAndColliders(fighter.x, fighter.y - overlap );
-				//fighter.velocity.x = object2.velocity.x;
-				fighter.velocity.y = object2.velocity.y;
+				fighter.setPositionAndColliders(fighter.x, object2.y + object2.height - fighter.colliderTopRect.y );
+				fighter.velocity.y = 0;
 			}
+			
 			if (object2.overlaps(fighter.colliderFront))
 			{
-				overlap = fighter.x + fighter.width - object2.x;
-				fighter.setPositionAndColliders(fighter.x - overlap, fighter.y);
-				//fighter.velocity.x = object2.velocity.x;
+				if (fighter.facingRight)
+				{
+					fighter.setPositionAndColliders(object2.x - fighter.colliderFrontRect.x - fighter.colliderFrontRect.width, 
+						fighter.y);
+				}
+				else
+				{
+					fighter.setPositionAndColliders(object2.x + object2.width - fighter.colliderBackRect.x, fighter.y);
+				}
+				fighter.velocity.x = 0;
 			}
 			if (object2.overlaps(fighter.colliderBack))
 			{
-				overlap = fighter.x + fighter.width - object2.x;
-				fighter.setPositionAndColliders(fighter.x - overlap, fighter.y);
-				//fighter.velocity.x = object2.velocity.x;
+				if (fighter.facingRight)
+				{
+					fighter.setPositionAndColliders(object2.x + object2.width - fighter.colliderBackRect.x, fighter.y);
+				}
+				else
+				{
+					fighter.setPositionAndColliders(object2.x - fighter.colliderFrontRect.x - fighter.colliderFrontRect.width, 
+						fighter.y);
+				}
+				fighter.velocity.x = 0;
 			}
-			*/
 			
 			
 			return collided;
@@ -636,10 +636,20 @@ package
 			mainSprite.y = Y;
 			collider.x = this.x + colliderRect.x;
 			collider.y = this.y + colliderRect.y;
-			colliderFront.x = this.x + colliderFrontRect.x;
-			colliderFront.y = this.y + colliderFrontRect.y;
-			colliderBack.x = this.x + colliderBackRect.x;
-			colliderBack.y = this.y + colliderBackRect.y;
+			if (facingRight)
+			{
+				colliderFront.x = this.x + colliderFrontRect.x;
+				colliderFront.y = this.y + colliderFrontRect.y;
+				colliderBack.x = this.x + colliderBackRect.x;
+				colliderBack.y = this.y + colliderBackRect.y;
+			}
+			else
+			{
+				colliderFront.x = this.x + colliderBackRect.x;
+				colliderFront.y = this.y + colliderBackRect.y;
+				colliderBack.x = this.x + colliderFrontRect.x;
+				colliderBack.y = this.y + colliderFrontRect.y;
+			}
 			colliderTop.x = this.x + colliderTopRect.x;
 			colliderTop.y = this.y + colliderTopRect.y;
 		}
