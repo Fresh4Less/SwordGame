@@ -4,6 +4,7 @@ package
 	 * ...
 	 * @author Elliot Hatch
 	 */
+	import mx.core.FlexSprite;
 	import org.flixel.*;
 	
 	public class Fighter extends FlxSprite
@@ -63,11 +64,34 @@ package
 		private var sword:FighterSword;
 		private var facingRight:Boolean;
 		
+		//collision variables (public because collision handler is static and I don't know how to make friend functions
+		public var collider:ChildCollider;
+		public var colliderFront:FlxSprite;
+		public var colliderBack:FlxSprite;
+		public var colliderTop:FlxSprite;
+		
+		//rect(offsetx, offsety, width, height
+		//private var colliderBottomRect:FlxRect = new FlxRect(6, 32, 20, 16);
+		//private var colliderFrontRect:FlxRect = new FlxRect(16, 16, 16, 16);
+		//private var colliderBackRect:FlxRect = new FlxRect(0, 16, 16, 16);
+		//private var colliderTopRect:FlxRect = new FlxRect(6, 0, 20, 16);
+		
+		private var colliderRect:FlxRect = new FlxRect(-6, -32, 32, 48);
+		private var colliderFrontRect:FlxRect = new FlxRect(10, -16, 16, 16);
+		private var colliderBackRect:FlxRect = new FlxRect(-6, -16, 16, 16);
+		private var colliderTopRect:FlxRect = new FlxRect(0, -32, 20, 16);
+				
 		public var isOnGround:Boolean = false;
+		
+		//drawing
+		private var mainSprite:FlxSprite;
 		
 		public function Fighter(X:Number, Y:Number)
 		{
 			super(X, Y);
+						
+			makeGraphic(20, 16, 0xffaaffaa);
+			
 			maxVelocity.x = 200;
 			maxVelocity.y = 2000;
 			drag.x = maxVelocity.x * 4;
@@ -85,10 +109,35 @@ package
 			attackTarget = sword.attackIdleState;
 			movementProcess = ONGOING;
 			facingRight = true;
+			
+			collider = new ChildCollider(X + colliderRect.x, Y + colliderRect.y, this);
+			collider.makeGraphic(colliderRect.width, colliderRect.height, 0xff000000);
+			
+			colliderFront = new FlxSprite(X + colliderFrontRect.x, Y + colliderFrontRect.y);
+			colliderFront.makeGraphic(colliderFrontRect.width, colliderFrontRect.height, 0xffaaaaff);
+			colliderBack = new FlxSprite(X + colliderBackRect.x, Y + colliderBackRect.y);
+			colliderBack.makeGraphic(colliderBackRect.width, colliderBackRect.height, 0xffffaaaa);
+			colliderTop = new FlxSprite(X + colliderTopRect.x, Y + colliderTopRect.y);
+			colliderTop.makeGraphic(colliderTopRect.width, colliderTopRect.height, 0xffffffaa);
+			
+			mainSprite = new FlxSprite(X, Y);
+			mainSprite.makeGraphic(32, 48, 0xffffffff);
+			mainSprite.offset.x = -colliderRect.x;
+			mainSprite.offset.y = -colliderRect.y;
+		}
+		override public function draw():void
+		{
+			mainSprite.draw();
+			//collider.draw();
+			colliderFront.draw();
+			colliderBack.draw();
+			colliderTop.draw();
+			
+			super.draw();
 		}
 		
 		override public function update():void
-		{
+		{			
 			//acceleration.x = 0;
 			//acceleration.y = 900;
 			updateStates();
@@ -140,6 +189,22 @@ package
 				
 			}
 			super.update();
+		}
+		override public function postUpdate():void
+		{
+			super.postUpdate();
+			
+			//update colliders
+			mainSprite.x = this.x;
+			mainSprite.y = this.y;
+			collider.x = this.x + colliderRect.x;
+			collider.y = this.y + colliderRect.y;
+			colliderFront.x = this.x + colliderFrontRect.x;
+			colliderFront.y = this.y + colliderFrontRect.y;
+			colliderBack.x = this.x + colliderBackRect.x;
+			colliderBack.y = this.y + colliderBackRect.y;
+			colliderTop.x = this.x + colliderTopRect.x;
+			colliderTop.y = this.y + colliderTopRect.y;
 		}
 		
 		private function updateStates():void
@@ -423,28 +488,28 @@ package
 				case MOVEMENT_JUMP:
 				case MOVEMENT_JUMP_FORWARD:
 					if (facingRight)
-						color = 0xff0000;
+						mainSprite.color = 0xff0000;
 					else
-						color = 0x990000;
+						mainSprite.color = 0x990000;
 					break;
 				case MOVEMENT_TURN: 
 					facingRight = !facingRight;
 					if (facingRight)
-						color = 0xff0000;
+						mainSprite.color = 0xff0000;
 					else
-						color = 0x990000;
-					alpha = 1.0;
+						mainSprite.color = 0x990000;
+					mainSprite.alpha = 1.0;
 					break;
 				case MOVEMENT_SLIDE:
-					angle = 0;
+					mainSprite.angle = 0;
 				case MOVEMENT_CROUCH:
-					scale.y = 1.0;
+					mainSprite.scale.y = 1.0;
 					break;
 				case MOVEMENT_CROUCH_BACK:
-					angle = 0;
+					mainSprite.angle = 0;
 					break;
 				case MOVEMENT_CROUCH_FORWARD:
-					angle = 0;
+					mainSprite.angle = 0;
 					break;
 			}
 			//begin new state
@@ -452,29 +517,29 @@ package
 			switch(target.ID)
 			{
 				case MOVEMENT_TURN:
-					alpha = 0.5;
+					mainSprite.alpha = 0.5;
 					break;
 				case MOVEMENT_SLIDE:
-					angle = 90;
+					mainSprite.angle = 90;
 					break;
 				case MOVEMENT_CROUCH:
-					scale.y = .8;
+					mainSprite.scale.y = .8;
 					break;
 				case MOVEMENT_CROUCH_BACK:
-					angle = -20;
+					mainSprite.angle = -20;
 					if (!facingRight)
-						angle *= -1;
+						mainSprite.angle *= -1;
 					break;
 				case MOVEMENT_CROUCH_FORWARD:
-					angle = 20;
+					mainSprite.angle = 20;
 					if (!facingRight)
-						angle *= -1;
+						mainSprite.angle *= -1;
 					break;
 				case MOVEMENT_JUMP:
-					color = 0x000000;
+					mainSprite.color = 0x000000;
 					break;
 				case MOVEMENT_JUMP_FORWARD:
-					color = 0xaaaaaa;
+					mainSprite.color = 0xaaaaaa;
 					break;
 			}
 		}
@@ -482,6 +547,73 @@ package
 		private function movementOngoingToRecovery(state:FighterState):void
 		{
 		
+		}
+		
+		//collision
+		static public function handleCollision(object1:FlxObject, object2:FlxObject):Boolean
+		{
+			var collided:Boolean = false;
+			var childCollider:ChildCollider = (object1 as ChildCollider);
+			var fighter:Fighter = Fighter(childCollider.m_parent)
+			if (object2.overlaps(fighter))
+			{
+				FlxObject.separateY(fighter, object2);
+				fighter.isOnGround = true;
+				collided = true;
+			}
+			else
+			{
+				trace(fighter.x);
+				fighter.isOnGround = false;
+			}
+			/*
+			if (object2.overlaps(fighter.colliderBottom))
+			{
+				fighter.isOnGround = true;
+				
+				FlxObject.separateY(fighter.colliderBottom, object2);
+				var offsetY:Number = (fighter.colliderBottom.y + fighter.colliderBottomRect.y) - fighter.y;
+				fighter.setPositionAndColliders(fighter.x, fighter.y - offsetY);
+				fighter.velocity.y = fighter.colliderBottom.velocity.y;
+				//+ colliderBottomRect.y;
+				
+				var overlap:Number = fighter.y + fighter.height - object2.y;
+				if (overlap != 0)
+				{
+				fighter.setPositionAndColliders(fighter.x, fighter.y - overlap );
+				//fighter.velocity.x = object2.velocity.x;
+				fighter.velocity.y = object2.velocity.y;
+				}
+			}
+			else
+			{
+				fighter.isOnGround = false;
+			}
+			*/
+			/*
+			if (object2.overlaps(fighter.colliderTop))
+			{
+				overlap = fighter.y + fighter.height - object2.y;
+				fighter.setPositionAndColliders(fighter.x, fighter.y - overlap );
+				//fighter.velocity.x = object2.velocity.x;
+				fighter.velocity.y = object2.velocity.y;
+			}
+			if (object2.overlaps(fighter.colliderFront))
+			{
+				overlap = fighter.x + fighter.width - object2.x;
+				fighter.setPositionAndColliders(fighter.x - overlap, fighter.y);
+				//fighter.velocity.x = object2.velocity.x;
+			}
+			if (object2.overlaps(fighter.colliderBack))
+			{
+				overlap = fighter.x + fighter.width - object2.x;
+				fighter.setPositionAndColliders(fighter.x - overlap, fighter.y);
+				//fighter.velocity.x = object2.velocity.x;
+			}
+			*/
+			
+			
+			return collided;
 		}
 		
 		public function resetInput():void
@@ -494,6 +626,22 @@ package
 			jumpPressed = false;
 			slashPressed = false;
 			stabPressed = false;
+		}
+		
+		public function setPositionAndColliders(X:Number, Y:Number):void
+		{
+			this.x = X;
+			this.y = Y;
+			mainSprite.x = X;
+			mainSprite.y = Y;
+			collider.x = this.x + colliderRect.x;
+			collider.y = this.y + colliderRect.y;
+			colliderFront.x = this.x + colliderFrontRect.x;
+			colliderFront.y = this.y + colliderFrontRect.y;
+			colliderBack.x = this.x + colliderBackRect.x;
+			colliderBack.y = this.y + colliderBackRect.y;
+			colliderTop.x = this.x + colliderTopRect.x;
+			colliderTop.y = this.y + colliderTopRect.y;
 		}
 		
 		//raw input interface, called based on keyboard input, etc.

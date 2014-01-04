@@ -20,7 +20,6 @@ package
 			FlxG.bgColor = 0xffffffff;
 			
 			player1 = new Player(100, 200);
-			player1.makeGraphic(32, 48, 0xffffffff);
 			
 			platforms = new FlxGroup();
 			var platform1:FlxSprite = new FlxSprite(0, 400);
@@ -29,7 +28,7 @@ package
 			platforms.add(platform1);
 			var platform2:FlxSprite = new FlxSprite(0, 400 - 68)
 			platform2.makeGraphic(200, 10, 0xff000000);
-			platform2.immovable = true;5
+			platform2.immovable = true;
 			platforms.add(platform2);
 			
 			add(platforms);
@@ -50,6 +49,15 @@ package
 			killParticles.x = player1.x + 16;
 			killParticles.y = player1.y + 24;
 			FlxG.collide(killParticles, platforms);
+			if (FlxG.overlap(player1.collider, platforms, null, Fighter.handleCollision))
+			{
+			}
+			else
+			{
+				player1.isOnGround = false;
+			}
+			//trace(player1.isOnGround);
+			/*
 			if (FlxG.collide(player1, platforms))
 			{
 				//TODO: change this so only a "foot" collider will set this true
@@ -57,6 +65,7 @@ package
 			}
 			else
 				player1.isOnGround = false;
+				*/
 		}
 	}
 
