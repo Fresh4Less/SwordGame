@@ -239,6 +239,13 @@ package
 					movementProcess = RECOVERY;
 				}
 			}
+			else if (movementState == sword.wallSlideState && !(isOnWallLeft || isOnWallRight))
+			{
+				movementTargets.length = 0;
+				movementTargets.push(sword.jumpForwardState);
+				movementStateTimer.stop();
+				movementProcess = RECOVERY;
+			}
 			
 			else
 			{
@@ -441,7 +448,6 @@ package
 						//if in a wallslide in the air, only allow a walljump
 						if (movementTarget == sword.jumpForwardState)
 						{
-							trace(facingRight);
 							//skip directly to ongoing
 							//TEMPORARY WORKAROUND - set "isOnGround" to true temporarily so the jump works
 							isOnGround = true;
